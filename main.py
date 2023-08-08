@@ -1,6 +1,7 @@
 import pygame
 import pygame_gui
 import sys
+from enum import Enum
 
 # 초기화
 pygame.init()
@@ -24,7 +25,12 @@ sound_image = pygame.transform.scale(sound_image, sound_image_size)
 sound_image_rect = sound_image.get_rect()
 sound_image_rect.bottomright = (screen_width - 10, screen_height - 10)  # 원하는 위치로 조정
 
+# 상태 열거형 정의
+class GameState(Enum):
+    MAIN_MENU = 0
+    OTHER_SCREEN = 1
 
+current_state = GameState.MAIN_MENU  # 초기 상태 설정
 
 # 버튼 색상 정의
 button_bg_color = (255, 255, 255)
@@ -55,7 +61,7 @@ pygame.mixer.music.play(-1)  # 노래를 반복재생 (-1: 무한반복)
 gui_manager = pygame_gui.UIManager((screen_width, screen_height))
 
 def main():
-    global is_solo_button_pressed, is_multi_button_pressed
+    global is_solo_button_pressed, is_multi_button_pressed, current_state
 
     clock = pygame.time.Clock()
 
@@ -72,6 +78,13 @@ def main():
                 pygame.quit()
                 sys.exit()
 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if current_state == GameState.MAIN_MENU:
+                        current_state = GameState.OTHER_SCREEN
+                    else:
+                        current_state = GameState.MAIN_MENU
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if solo_button_rect.collidepoint(event.pos):
                     is_solo_button_pressed = True
@@ -79,6 +92,14 @@ def main():
                 if multi_button_rect.collidepoint(event.pos):
                     is_multi_button_pressed = True
                     click_sound.play()  
+                    
+                # "게임 종료" 버튼 누르면 게임 종료
+                if current_state == GameState.OTHER_SCREEN:
+                    exit_button_rect = pygame.Rect((screen_width // 2 - button_width // 2, screen_height // 2.3 + button_height // 2 + 20),
+                                                    (button_width, button_height))
+                    if exit_button_rect.collidepoint(event.pos):
+                        pygame.quit()
+                        sys.exit()
 
             if event.type == pygame.MOUSEBUTTONUP:
                 if solo_button_rect.collidepoint(event.pos):
@@ -93,46 +114,60 @@ def main():
 
         # 화면 업데이트
         screen.fill((255, 255, 255))
-        screen.blit(image, image_rect)
 
-        # 솔로 플레이 버튼 그리기
-        solo_button_size = pressed_button_size if is_solo_button_pressed else original_button_size
-        solo_button_rect.size = solo_button_size
-        solo_button_rect.center = (screen_width // 1.3, screen_height // 2.1)
-        pygame.draw.rect(screen, button_bg_color, solo_button_rect)
-        pygame.draw.rect(screen, button_border_color, solo_button_rect, 10)
-        solo_text = custom_font.render("솔로 플레이", True, (0, 0, 0))
-        solo_text_rect = solo_text.get_rect(center=solo_button_rect.center)
-        screen.blit(solo_text, solo_text_rect)
+        if current_state == GameState.MAIN_MENU:
+            # 메인 화면 UI 그리기 및 처리
+            screen.blit(image, image_rect)
+            
+            # 솔로 플레이 버튼 그리기
+            solo_button_size = pressed_button_size if is_solo_button_pressed else original_button_size
+            solo_button_rect.size = solo_button_size
+            solo_button_rect.center = (screen_width // 1.3, screen_height // 2.1)
+            pygame.draw.rect(screen, button_bg_color, solo_button_rect)
+            pygame.draw.rect(screen, button_border_color, solo_button_rect, 10)
+            solo_text = custom_font.render("솔로 플레이", True, (0, 0, 0))
+            solo_text_rect = solo_text.get_rect(center=solo_button_rect.center)
+            screen.blit(solo_text, solo_text_rect)
+            
+            # 멀티 플레이 버튼 그리기
+            multi_button_size = pressed_button_size if is_multi_button_pressed else original_button_size
+            multi_button_rect.size = multi_button_size
+            multi_button_rect.center = (screen_width // 1.3, screen_height // 1.55)
+            pygame.draw.rect(screen, button_bg_color, multi_button_rect)
+            pygame.draw.rect(screen, button_border_color, multi_button_rect, 10)
+            multi_text = custom_font.render("멀티 플레이", True, (0, 0, 0))
+            multi_text_rect = multi_text.get_rect(center=multi_button_rect.center)
+            screen.blit(multi_text, multi_text_rect)
 
-        # 멀티 플레이 버튼 그리기
-        multi_button_size = pressed_button_size if is_multi_button_pressed else original_button_size
-        multi_button_rect.size = multi_button_size
-        multi_button_rect.center = (screen_width // 1.3, screen_height // 1.55)
-        pygame.draw.rect(screen, button_bg_color, multi_button_rect)
-        pygame.draw.rect(screen, button_border_color, multi_button_rect, 10)
-        multi_text = custom_font.render("멀티 플레이", True, (0, 0, 0))
-        multi_text_rect = multi_text.get_rect(center=multi_button_rect.center)
-        screen.blit(multi_text, multi_text_rect)
+            screen.blit(sound_image, sound_image_rect)
+            
+            # GUI 업데이트
+            gui_manager.update(time_delta)
+            gui_manager.draw_ui(screen)
+            
+        elif current_state == GameState.OTHER_SCREEN:
+            # 다른 화면 UI 그리기 및 처리
+            screen.fill((255, 255, 255)) 
 
-        screen.blit(sound_image, sound_image_rect)
-
-        # GUI 업데이트
-        gui_manager.update(time_delta)
-        gui_manager.draw_ui(screen)
+            # "설정" 버튼 그리기
+            settings_button_rect = pygame.Rect((screen_width // 2 - button_width // 2, screen_height // 2.3 - button_height // 2),
+                                               (button_width, button_height))
+            pygame.draw.rect(screen, button_bg_color, settings_button_rect)
+            pygame.draw.rect(screen, button_border_color, settings_button_rect, 10)
+            settings_text = custom_font.render("설정", True, (0, 0, 0))
+            settings_text_rect = settings_text.get_rect(center=settings_button_rect.center)
+            screen.blit(settings_text, settings_text_rect)
+            
+            # "게임 종료" 버튼 그리기
+            exit_button_rect = pygame.Rect((screen_width // 2 - button_width // 2, screen_height // 2.3 + button_height // 2 + 20),
+                                           (button_width, button_height))
+            pygame.draw.rect(screen, button_bg_color, exit_button_rect)
+            pygame.draw.rect(screen, button_border_color, exit_button_rect, 10)
+            exit_text = custom_font.render("게임 종료", True, (0, 0, 0))
+            exit_text_rect = exit_text.get_rect(center=exit_button_rect.center)
+            screen.blit(exit_text, exit_text_rect)
 
         pygame.display.update()
-
-
-def decrease_volume():
-    current_volume = pygame.mixer.music.get_volume()
-    new_volume = max(current_volume - 0.1, 0.0)
-    pygame.mixer.music.set_volume(new_volume)
-
-def increase_volume():
-    current_volume = pygame.mixer.music.get_volume()
-    new_volume = min(current_volume + 0.1, 1.0)
-    pygame.mixer.music.set_volume(new_volume)
 
 if __name__ == "__main__":
     main()
