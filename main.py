@@ -6,16 +6,25 @@ import sys
 pygame.init()
 
 # 화면 크기 설정
-screen_width = 1200
-screen_height = 800
+screen_width = 1100
+screen_height = 700
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Display Image with Buttons")
 
 # 이미지 로드
-image_path = "main.jpg"
-image = pygame.image.load(image_path)
+main_image_path = "images\\main.jpg"
+image = pygame.image.load(main_image_path)
 image_rect = image.get_rect()
 image_rect.center = (screen_width // 2.5, screen_height // 2)
+
+sound_image_path = "images\\sound.jpg"
+sound_image = pygame.image.load(sound_image_path)
+sound_image_size = (60, 50)
+sound_image = pygame.transform.scale(sound_image, sound_image_size)
+sound_image_rect = sound_image.get_rect()
+sound_image_rect.bottomright = (screen_width - 10, screen_height - 10)  # 원하는 위치로 조정
+
+
 
 # 버튼 색상 정의
 button_bg_color = (255, 255, 255)
@@ -34,11 +43,11 @@ is_solo_button_pressed = False
 is_multi_button_pressed = False
 
 # 딸깍 소리 로드
-click_sound = pygame.mixer.Sound("switch.mp3")  # 사용할 사운드 파일의 경로를 입력하세요
+click_sound = pygame.mixer.Sound("sounds\\switch.mp3")  # 사용할 사운드 파일의 경로를 입력하세요
 click_sound.set_volume(0.2) 
 
 # 노래 재생 설정
-pygame.mixer.music.load("background_music.mp3")  # 메인 화면에 재생할 노래 파일의 경로를 입력하세요
+pygame.mixer.music.load("sounds\\background_music.mp3")  # 메인 화면에 재생할 노래 파일의 경로를 입력하세요
 pygame.mixer.music.set_volume(0.05)  # 초기 음량 설정
 pygame.mixer.music.play(-1)  # 노래를 반복재생 (-1: 무한반복)
 
@@ -105,6 +114,8 @@ def main():
         multi_text = custom_font.render("멀티 플레이", True, (0, 0, 0))
         multi_text_rect = multi_text.get_rect(center=multi_button_rect.center)
         screen.blit(multi_text, multi_text_rect)
+
+        screen.blit(sound_image, sound_image_rect)
 
         # GUI 업데이트
         gui_manager.update(time_delta)
