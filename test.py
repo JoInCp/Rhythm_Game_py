@@ -5,11 +5,11 @@ pygame.init()
 screen_width = 900
 screen_height = 700
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Rectangle Drawing")
+pygame.display.set_caption("test game")
 
-# 색상 정의
 white = (255, 255, 255)
 black = (0, 0, 0)
+red = (255, 0, 0)
 
 button_font_size = 50
 button_font = pygame.font.Font(None, button_font_size)
@@ -34,30 +34,65 @@ button_data = [
 ]
 
 note_data = [
-    {"number": 0, "color": black, "lane": 0, "note_start_delays": 1000,"note_speed": 1/50},
-    {"number": 1, "color": black, "lane": 1, "note_start_delays": 3000,"note_speed": 1/50},
-    {"number": 2, "color": black, "lane": 2, "note_start_delays": 5000,"note_speed": 1/50},
-    {"number": 3, "color": black, "lane": 3, "note_start_delays": 7000,"note_speed": 1/50},
-    {"number": 4, "color": black, "lane": 1, "note_start_delays": 9000,"note_speed": 1/50},
-    {"number": 5, "color": black, "lane": 2, "note_start_delays": 12000,"note_speed": 1/50},
-    {"number": 6, "color": black, "lane": 3, "note_start_delays": 15000,"note_speed": 1/50},
-    {"number": 7, "color": black, "lane": 1, "note_start_delays": 18000,"note_speed": 1/50}, 
+    {"number": 0, "color": black, "lane": 0, "note_start_delays": 0,"note_speed": 1/10},
+    {"number": 1, "color": black, "lane": 1, "note_start_delays": 700,"note_speed": 1/10},
+    {"number": 2, "color": black, "lane": 2, "note_start_delays": 700,"note_speed": 1/10},
+    {"number": 3, "color": black, "lane": 3, "note_start_delays": 1500,"note_speed": 1/10},
+    {"number": 4, "color": black, "lane": 1, "note_start_delays": 1800,"note_speed": 1/10},
+    {"number": 5, "color": black, "lane": 2, "note_start_delays": 1800,"note_speed": 1/10},
+    {"number": 6, "color": black, "lane": 3, "note_start_delays": 2300,"note_speed": 1/10}, 
+    {"number": 7, "color": black, "lane": 1, "note_start_delays": 2300,"note_speed": 1/10},
+    {"number": 8, "color": black, "lane": 0, "note_start_delays": 2700,"note_speed": 1/10},
+    {"number": 9, "color": black, "lane": 1, "note_start_delays": 3300,"note_speed": 1/10},
+    {"number": 10, "color": black, "lane": 2, "note_start_delays": 4000,"note_speed": 1/10},
+    {"number": 11, "color": black, "lane": 3, "note_start_delays": 4000,"note_speed": 1/10},
 ]
 
 note_height = 40
 note_width = 80
 
-comb = 0  # 점수 변수 초기화
+comb = 0
 
+initial_position_outside_screen = -5  # 더 큰 값을 사용해도 됩니다.
 for note in note_data:
     note["start_time"] = pygame.time.get_ticks() + note["note_start_delays"]
-    note["number"] = -1  # 화면 밖에서 시작하도록 음수로 초기화
+    note["number"] = initial_position_outside_screen
+comb_font = pygame.font.Font(None, 40)
+comb_number_font_size = 100
+comb_number_font = pygame.font.Font(None, comb_number_font_size)
 
-comb_font = pygame.font.Font(None, 36)  # 점수를 나타낼 폰트 설정
+# MY.HP 라벨 관련 설정
+hp_label_font = pygame.font.Font(None, 40)
+hp_label_text = hp_label_font.render("MY.HP", True, black)
+hp_label_rect = hp_label_text.get_rect(right=screen_width-230, top=150)
+
+# HP 바 관련 설정
+hp_bar_x = screen_width - 320 
+hp_bar_y = hp_label_rect.bottom + 10
+hp_bar_width = 240
+hp_bar_height = 60
+hp_segment_width = hp_bar_width // 10 
+
+player_hp = 10
+
+def draw_hp_bar():
+    # 먼저 전체 바를 빨간색으로 그립니다.
+    pygame.draw.rect(screen, red, (hp_bar_x, hp_bar_y, hp_bar_width, hp_bar_height))
+
+    # 빠진 체력에 따라 하얀색으로 그립니다.
+    for i in range(player_hp, 10):
+        pygame.draw.rect(screen, white, (hp_bar_x + i * hp_segment_width, hp_bar_y, hp_segment_width, hp_bar_height))
+    
+    # 테두리와 구분선을 그립니다.
+    pygame.draw.rect(screen, black, (hp_bar_x, hp_bar_y, hp_bar_width, hp_bar_height), 8)  # 테두리
+    for i in range(1, 10):
+        pygame.draw.line(screen, black, (hp_bar_x + i * hp_segment_width, hp_bar_y), 
+                         (hp_bar_x + i * hp_segment_width, hp_bar_y + hp_bar_height-5), 4)
+
 
 def draw_notes():
     for note in note_data:
-        if note["number"] >= 0:  # 화면에 보이는 노트만 그립니다.
+        if note["number"] >= 0:
             lane = note["lane"]
             x = button_data[lane]["x"] + button_data[lane]["width"] // 2 - note_width // 2
             y = note["number"] * note_height
@@ -65,27 +100,77 @@ def draw_notes():
 
 clock = pygame.time.Clock()
 
-def move_notes(note):
-    note["number"] += note["note_speed"]
-    if note["number"] * note_height > screen_height:
-        note_data.remove(note)  # 리스트에서 해당 노트 삭제
+def move_notes():
+    global comb, y_position, bottom_of_screen, player_hp  # player_hp를 추가합니다.
+    bottom_of_screen = rect_y + rect_height  
+    hit_line = rect_y + rect_height - 240
+    current_time = pygame.time.get_ticks()
+    notes_to_remove = []
+
+    for note in note_data:
+        if current_time >= note["start_time"]:
+            note["number"] += note["note_speed"]
+            y_position = note["number"] * note_height
+
+            # 노트가 라인에 닿을 때
+            if hit_line <= y_position and y_position <= hit_line + note_height:
+                player_hp -= 1 
+                if note not in notes_to_remove:
+                    notes_to_remove.append(note)
+                comb = 0
+
+            # 노트가 화면 아래로 사라지는 지점을 넘었을 때
+            elif y_position >= bottom_of_screen:
+                if note not in notes_to_remove:
+                    notes_to_remove.append(note)
+
+    # 노트 삭제
+    for note in notes_to_remove:
+        note_data.remove(note)
+
+
+
 
 while running:
+    screen.fill(white)  # 화면을 흰색으로 채우기
+
+    move_notes()  # while 루프의 시작 부분에서 move_notes() 함수를 호출합니다.
+
+    draw_hp_bar()
+    
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            for button in button_data:
+                if event.key == button["key"]:
+                    button["color"] = white
+                    
+                    # 라인과 겹치지 않는 상태에서 버튼이 눌리면 콤보 초기화
+                    lane = button_data.index(button)
+                    hit_note = False
+                    for note in note_data:
+                        y_position = note["number"] * note_height
+                        line_y = rect_y + rect_height - 240
+                        if note["lane"] == lane and y_position <= line_y and y_position + note_height >= line_y:
+                            hit_note = True
+                            break
+                    if not hit_note:
+                        comb = 0
 
-    keys = pygame.key.get_pressed() 
-
-    screen.fill(white)
-
+        elif event.type == pygame.KEYUP:
+            for button in button_data:
+                if event.key == button["key"]:
+                    button["color"] = black
+    
     pygame.draw.rect(screen, black, (rect_x, rect_y, rect_width, rect_height), border_thickness)
-
+   
     segment_width = rect_width // 4
     for i in range(1, 4):
         x = rect_x + i * segment_width
         pygame.draw.line(screen, black, (x, rect_y), (x, rect_y + rect_height-5), 8)
-        
+
     y = rect_y + rect_height - 150
     pygame.draw.line(screen, black, (rect_x, max(y, rect_y)), (rect_x + rect_width-5, max(y, rect_y)), 8)
 
@@ -93,54 +178,38 @@ while running:
     pygame.draw.line(screen, black, (rect_x, max(y, rect_y)), (rect_x + rect_width-5, max(y, rect_y)), 8)
 
     for button in button_data:
-        if keys[button["key"]]:
-            button["pressed"] = True
-            button["color"] = white
-            for note in note_data:
-                if note["number"] >= 0:  # 화면에 보이는 노트만 검사
+        if button["color"] == white:  # 키가 눌렸을 때만 노트와 충돌 검사
+            for note in note_data[:]:
+                if note["number"] >= 0:
                     lane = note["lane"]
-                    x = button_data[lane]["x"]
-                    y = note["number"] * note_height
-                    if y < rect_y + rect_height - 240 + note_height and y + note_height > rect_y + rect_height - 240:  # 노트의 아무 부분이 y = rect_y + rect_height - 240 라인과 닿으면
-                        if lane == button_data.index(button):  # 버튼과 노트의 레인이 일치하면
-                            comb += 1  # 점수 증가
-                            note_data.remove(note)  # 노트 삭제
-        else:
-            button["pressed"] = False
-            button["color"] = black
-        
+                    y_position = note["number"] * note_height
+                    line_y = rect_y + rect_height - 240
+                    if y_position <= line_y and y_position + note_height >= line_y:
+                        if lane == button_data.index(button):
+                            comb += 1
+                            note_data.remove(note)
+                            break
+                    elif y_position > rect_y + rect_height:
+                        if lane == button_data.index(button):
+                            comb = 0
+    draw_notes()
+
+    for button in button_data:
         pygame.draw.rect(screen, black, (button["x"], button["y"], button["width"], button["height"]), 1)
         pygame.draw.rect(screen, button["color"], (button["x"], button["y"], button["width"], button["height"]), 0)
         if button["pressed"]:
             pygame.draw.rect(screen, black, (button["x"], button["y"], button["width"], button["height"]), 3)
-            
+
         text = button_font.render(pygame.key.name(button["key"]), True, white)
         text_rect = text.get_rect(center=(button["x"] + button["width"] // 2, button["y"] + button["height"] // 2))
         screen.blit(text, text_rect)
-    
-    current_time = pygame.time.get_ticks()
 
-    for note in note_data:
-        if current_time >= note["start_time"]:
-            move_notes(note)  # 딜레이가 지난 노트만 내려오도록 처리
-            if note["number"] * note_height > rect_y + rect_height - 190:
-                note_data.remove(note)  # 일정 라인 아래로 내려가면 해당 노트 삭제
-
-    draw_notes()  # 음표 그리기 함수 호출
-    
-    # 점수를 화면 오른쪽 위에 표시
     comb_text = comb_font.render("COMB", True, black)
-    comb_rect = comb_text.get_rect(right=screen_width-160, top=300)
-    
-    # 검정색 테두리와 흰색 배경을 가진 원을 그립니다.
-    pygame.draw.circle(screen, black, comb_rect.center, comb_rect.width // 2 + 10, 4)
-
-    # 콤보 텍스트를 원 바깥에 배치
-    comb_text_rect = comb_text.get_rect(center=(comb_rect.centerx, comb_rect.centery - 70))
+    comb_rect = comb_text.get_rect(right=screen_width-160, top=400)
+    pygame.draw.circle(screen, black, comb_rect.center, comb_rect.width, 8)
+    comb_text_rect = comb_text.get_rect(center=(comb_rect.centerx, comb_rect.centery - 100))
     screen.blit(comb_text, comb_text_rect)
-
-    # 숫자를 원의 중앙에 배치
-    comb_number_text = comb_font.render(str(comb), True, black)
+    comb_number_text = comb_number_font.render(str(comb), True, black)
     comb_number_rect = comb_number_text.get_rect(center=comb_rect.center)
     screen.blit(comb_number_text, comb_number_rect)
 
