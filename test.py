@@ -1,5 +1,7 @@
 import pygame
 import copy
+import time
+import threading
 
 # ========== 초기 설정 ==========
 pygame.init()
@@ -7,6 +9,7 @@ screen_width = 900
 screen_height = 700
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("test game")
+song_file_path = "젓가락행진곡jazz-bloom_yj.mp3"
 
 # ========== 색상 ==========
 white = (255, 255, 255)
@@ -60,19 +63,19 @@ button_data = [
 
 # ========== 노트 데이터 ==========
 original_note_data = [
-    {"number": 0, "color": black, "lane": 0, "note_start_delays": 0,"note_speed": 1/15},
-    {"number": 1, "color": black, "lane": 1, "note_start_delays": 1000,"note_speed": 1/15},
-    {"number": 2, "color": black, "lane": 2, "note_start_delays": 1000,"note_speed": 1/15},
-    {"number": 3, "color": black, "lane": 3, "note_start_delays": 1800,"note_speed": 1/15},
-    {"number": 4, "color": black, "lane": 1, "note_start_delays": 2500,"note_speed": 1/15},
-    {"number": 5, "color": black, "lane": 2, "note_start_delays": 2500,"note_speed": 1/15},
-    {"number": 6, "color": black, "lane": 3, "note_start_delays": 3200,"note_speed": 1/15}, 
-    {"number": 7, "color": black, "lane": 1, "note_start_delays": 3200,"note_speed": 1/15},
-    {"number": 8, "color": black, "lane": 0, "note_start_delays": 4000,"note_speed": 1/15},
-    {"number": 9, "color": black, "lane": 1, "note_start_delays": 4500,"note_speed": 1/15},
-    {"number": 10, "color": black, "lane": 2, "note_start_delays": 4500,"note_speed": 1/15},
-    {"number": 11, "color": black, "lane": 3, "note_start_delays": 5000,"note_speed": 1/15},
+    {"number": 0, "color": "black", "lane": 0, "note_start_delays": 2400, "note_speed": 1/10},
+    {"number": 1, "color": "black", "lane": 1, "note_start_delays": 2400, "note_speed": 1/10},
+    {"number": 2, "color": "black", "lane": 0, "note_start_delays": 2800, "note_speed": 1/10},
+    {"number": 3, "color": "black", "lane": 1, "note_start_delays": 2800, "note_speed": 1/10},
+    # {"number": 4, "color": "black", "lane": 0, "note_start_delays": 2800, "note_speed": 1/10},
+    # {"number": 5, "color": "black", "lane": 1, "note_start_delays": 2800, "note_speed": 1/10},
+    # {"number": 6, "color": "black", "lane": 0, "note_start_delays": 3100, "note_speed": 1/10},
+    # {"number": 7, "color": "black", "lane": 1, "note_start_delays": 3100, "note_speed": 1/10},
+    # {"number": 8, "color": "black", "lane": 0, "note_start_delays": 3390, "note_speed": 1/10},
+    # {"number": 9, "color": "black", "lane": 1, "note_start_delays": 3390, "note_speed": 1/10},
+
 ]
+
 
 initial_position_outside_screen = -5  # 더 큰 값을 사용해도 됩니다.
 for note in original_note_data:
@@ -152,6 +155,17 @@ def draw_retry_button():
     text_rect = text.get_rect(center=retry_button['rect'].center)
     screen.blit(text, text_rect)
 
+def play_song():
+    pygame.mixer.music.load(song_file_path)
+    pygame.mixer.music.play()
+
+def stop_song():
+    pygame.mixer.music.stop()
+
+def play_song_thread():
+    time.sleep(2)  # 2초 딜레이
+    pygame.mixer.music.load(song_file_path)
+    pygame.mixer.music.play()
 
 # ========== 메인 게임 루프 ==========
 while running:
@@ -199,6 +213,10 @@ while running:
     
     # 게임 중일 때
     if game_state == "playing":
+        if pygame.mixer.music.get_busy() == 0:
+            song_thread = threading.Thread(target=play_song_thread)
+            song_thread.start()
+
         screen.blit(hp_label_text, hp_label_rect.topleft)
         move_notes()
         check_game_over()
@@ -254,6 +272,7 @@ while running:
 
     # 게임 오버일 때
     elif game_state == "game_over":
+        stop_song()
         screen.fill(white)
         game_over_font = pygame.font.Font(path, 100)
         game_over_text = game_over_font.render("Game Over", True, black)
