@@ -9,7 +9,8 @@ screen_width = 900
 screen_height = 700
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("test game")
-song_file_path = "젓가락행진곡jazz-bloom_yj.mp3"
+#song_file_path = "sounds\\test.mp3"
+song_file_path = "sounds//test.mp3"
 
 # ========== 색상 ==========
 white = (255, 255, 255)
@@ -23,12 +24,13 @@ button_font_size = 50
 button_font = pygame.font.Font(path, button_font_size)
 hp_label_font = pygame.font.Font(None, 40)
 hp_label_text = hp_label_font.render("MY.HP", True, black)
-hp_label_rect = hp_label_text.get_rect(right=screen_width-240, top=160)
+hp_label_rect = hp_label_text.get_rect(right=screen_width-240, top=180)
 comb_font = pygame.font.Font(path, 40)
 comb_number_font_size = 80
 comb_number_font = pygame.font.Font(path, comb_number_font_size)
 
 # ========== 게임 상태 변수 ==========
+score = 0
 comb = 0
 game_state = "playing"
 running = True
@@ -39,19 +41,27 @@ rect_y = 10
 rect_width = 450
 rect_height = 680
 border_thickness = 8
-note_height = 40
+note_height = 35
 note_width = 80
 semicolon_key = 59
+
 hp_bar_x = screen_width - 320 
 hp_bar_y = hp_label_rect.bottom 
 hp_bar_width = 240
 hp_bar_height = 60
 hp_segment_width = hp_bar_width // 10 
 player_hp = 10
+
 button_x_centers = [73.75 + 45, 184.75 + 45, 296 + 45, 407 + 45]
 button_y_center = rect_height - 132 + 65
+
 check_line = rect_y + rect_height - 150
 hit_line = rect_y + rect_height - 240
+
+score_box_width = 240
+score_box_height = 70
+score_box_x = screen_width - 320
+score_box_y = 80
 
 # ========== 버튼 데이터 ==========
 button_data = [
@@ -65,14 +75,14 @@ button_data = [
 original_note_data = [
     {"number": 0, "color": "black", "lane": 0, "note_start_delays": 2400, "note_speed": 1/10},
     {"number": 1, "color": "black", "lane": 1, "note_start_delays": 2400, "note_speed": 1/10},
-    {"number": 2, "color": "black", "lane": 0, "note_start_delays": 2800, "note_speed": 1/10},
-    {"number": 3, "color": "black", "lane": 1, "note_start_delays": 2800, "note_speed": 1/10},
-    # {"number": 4, "color": "black", "lane": 0, "note_start_delays": 2800, "note_speed": 1/10},
-    # {"number": 5, "color": "black", "lane": 1, "note_start_delays": 2800, "note_speed": 1/10},
-    # {"number": 6, "color": "black", "lane": 0, "note_start_delays": 3100, "note_speed": 1/10},
-    # {"number": 7, "color": "black", "lane": 1, "note_start_delays": 3100, "note_speed": 1/10},
-    # {"number": 8, "color": "black", "lane": 0, "note_start_delays": 3390, "note_speed": 1/10},
-    # {"number": 9, "color": "black", "lane": 1, "note_start_delays": 3390, "note_speed": 1/10},
+    {"number": 2, "color": "black", "lane": 2, "note_start_delays": 3400, "note_speed": 1/10},
+    {"number": 3, "color": "black", "lane": 3, "note_start_delays": 3400, "note_speed": 1/10},
+    {"number": 4, "color": "black", "lane": 0, "note_start_delays": 4400, "note_speed": 1/10},
+    {"number": 5, "color": "black", "lane": 1, "note_start_delays": 4400, "note_speed": 1/10},
+    {"number": 6, "color": "black", "lane": 2, "note_start_delays": 5400, "note_speed": 1/10},
+    {"number": 7, "color": "black", "lane": 3, "note_start_delays": 5400, "note_speed": 1/10},
+    {"number": 8, "color": "black", "lane": 0, "note_start_delays": 6400, "note_speed": 1/10},
+    {"number": 9, "color": "black", "lane": 1, "note_start_delays": 6400, "note_speed": 1/10},
 
 ]
 
@@ -84,11 +94,28 @@ for note in original_note_data:
 
 retry_button = {
     'color': white,
-    'rect': pygame.Rect(screen_width // 2 - 100, screen_height // 2 + 50, 200, 50),
-    'text': "다시 시도하기",
-    'font': pygame.font.Font(path, 30),
+    'rect': pygame.Rect(screen_width-32, screen_height // 2 + 50, 200, 50),
+    'text': "다시 하기",
+    'font': pygame.font.Font(path, 50),
     'text_color': black 
 }
+
+
+menu_button = {
+    'color': white,
+    'rect': pygame.Rect(screen_width - 250, screen_height // 2 + 150, 200, 50),
+    'text': "메뉴 가기",
+    'font': pygame.font.Font(path, 50),
+    'text_color': black 
+}
+button_spacing = 60
+half_spacing = button_spacing / 2
+
+total_buttons_width = retry_button['rect'].width + menu_button['rect'].width + button_spacing
+retry_button['rect'].topleft = ((screen_width - total_buttons_width) // 2, screen_height // 2 + 90)
+menu_button['rect'].topleft = (retry_button['rect'].right + button_spacing, screen_height // 2 + 90)
+
+
 
 note_data = copy.deepcopy(original_note_data)
 for note in note_data:
@@ -155,6 +182,12 @@ def draw_retry_button():
     text_rect = text.get_rect(center=retry_button['rect'].center)
     screen.blit(text, text_rect)
 
+def draw_menu_button():
+    pygame.draw.rect(screen, menu_button['color'], menu_button['rect'])
+    text = menu_button['font'].render(menu_button['text'], True, menu_button['text_color'])
+    text_rect = text.get_rect(center=menu_button['rect'].center)
+    screen.blit(text, text_rect)
+
 def play_song():
     pygame.mixer.music.load(song_file_path)
     pygame.mixer.music.play()
@@ -166,6 +199,33 @@ def play_song_thread():
     time.sleep(2)  # 2초 딜레이
     pygame.mixer.music.load(song_file_path)
     pygame.mixer.music.play()
+
+def draw_win_screen():
+    screen.fill(white)
+    
+    score_font = pygame.font.Font(path, 70)
+    score_text = score_font.render(f"Score: {score}", True, black)
+    score_rect = score_text.get_rect(center=(screen_width // 2, 300))
+
+    comb_font = pygame.font.Font(path, 70)
+    comb_text = comb_font.render(f"Max Combo: {comb}", True, black)
+    comb_rect = comb_text.get_rect(center=(screen_width // 2, score_rect.bottom + 50))
+
+    draw_retry_button()
+    draw_menu_button()
+
+    line_start = (score_rect.left-90, score_rect.bottom + 90)
+    line_end = (score_rect.right+90, score_rect.bottom + 90)
+    pygame.draw.line(screen, black, line_start, line_end, 8)
+
+    vertical_line_start_x = (retry_button['rect'].right + menu_button['rect'].left) // 2
+    vertical_line_start = (vertical_line_start_x, score_rect.bottom + 90)
+    vertical_line_end = (vertical_line_start_x, retry_button['rect'].top+60)
+    pygame.draw.line(screen, black, vertical_line_start, vertical_line_end, 8)  
+
+    screen.blit(score_text, score_rect)
+    screen.blit(comb_text, comb_rect)
+
 
 # ========== 메인 게임 루프 ==========
 while running:
@@ -190,14 +250,18 @@ while running:
                             break
                     if not hit_note:
                         comb = 0
-        if game_state == "game_over":
+        if game_state in ["game_over", "win"]:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 if retry_button['rect'].collidepoint(mouse_pos):
                     comb = 0
                     player_hp = 10
+                    score = 0
                     game_state = "playing"
-                    
+
+                    for button in button_data:
+                        button["color"] = black
+                        button["pressed"] = False
                     note_data = copy.deepcopy(original_note_data)
                     
                     for note in note_data:
@@ -213,6 +277,9 @@ while running:
     
     # 게임 중일 때
     if game_state == "playing":
+        if not note_data and player_hp > 0:  # 모든 노트가 사라지고 체력이 0 이상인 경우
+            game_state = "win"
+
         if pygame.mixer.music.get_busy() == 0:
             song_thread = threading.Thread(target=play_song_thread)
             song_thread.start()
@@ -240,7 +307,10 @@ while running:
                         line_y = hit_line
                         if y_position <= line_y and y_position + note_height >= line_y:
                             if lane == button_data.index(button):
+                                score += 10
                                 comb += 1
+                                if comb % 10 == 0 and comb != 0:
+                                    score += 5
                                 note_data.remove(note)
                                 break
                         elif y_position > rect_y + rect_height:
@@ -258,6 +328,17 @@ while running:
             text_rect = text.get_rect(center=(button["x"] + button["width"] // 2, button["y"] + button["height"] // 2))
             screen.blit(text, text_rect)
 
+        pygame.draw.rect(screen, white, (score_box_x, score_box_y, score_box_width, score_box_height))
+        pygame.draw.rect(screen, black, (score_box_x, score_box_y, score_box_width, score_box_height), 8)
+        score_label_font = pygame.font.Font(path, 30)
+        score_label_text = score_label_font.render("Score", True, black)
+        score_label_rect = score_label_text.get_rect(midbottom=(score_box_x+45, score_box_y))
+        screen.blit(score_label_text, score_label_rect)
+        score_font = pygame.font.Font(path, 50)
+        score_text = score_font.render(f"{score}", True, black)
+        score_rect = score_text.get_rect(midright=(score_box_x + score_box_width - 20, score_box_y + (score_box_height // 2)))
+        screen.blit(score_text, score_rect)
+
         comb_text = comb_font.render("COMB", True, black)   
         comb_rect = comb_text.get_rect(right=screen_width-140, top=450)
         pygame.draw.circle(screen, black, comb_rect.center, comb_rect.width-30, 8)
@@ -266,7 +347,7 @@ while running:
         comb_number_text = comb_number_font.render(str(comb), True, black)
         comb_number_rect = comb_number_text.get_rect(center=comb_rect.center)
         screen.blit(comb_number_text, comb_number_rect)
-
+        
         pygame.display.flip()
         clock.tick(60)
 
@@ -277,8 +358,23 @@ while running:
         game_over_font = pygame.font.Font(path, 100)
         game_over_text = game_over_font.render("Game Over", True, black)
         text_rect = game_over_text.get_rect(center=(screen_width // 2, screen_height // 2))
+
         draw_retry_button() 
+        draw_menu_button()
+
+        line_start = (text_rect.left, text_rect.bottom + 20)
+        line_end = (text_rect.right, text_rect.bottom + 20)
+        pygame.draw.line(screen, black, line_start, line_end, 8)
+
+        vertical_line_start = ((line_start[0] + line_end[0]) // 2, text_rect.bottom + 20)
+        vertical_line_end = ((line_start[0] + line_end[0]) // 2, retry_button['rect'].top+60)
+        pygame.draw.line(screen, black, vertical_line_start, vertical_line_end, 8)  
+
         screen.blit(game_over_text, text_rect)
+        pygame.display.flip()
+
+    elif game_state == "win":
+        draw_win_screen()
         pygame.display.flip()
         
         
