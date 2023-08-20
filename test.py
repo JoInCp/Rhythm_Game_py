@@ -9,8 +9,8 @@ screen_width = 900
 screen_height = 700
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("test game")
-#song_file_path = "sounds\\test.mp3"
-song_file_path = "sounds//test.mp3"
+song_file_path = "sounds\\test.mp3"
+# song_file_path = "sounds//test.mp3"
 
 # ========== 색상 ==========
 white = (255, 255, 255)
@@ -19,7 +19,6 @@ red = (255, 0, 0)
 
 # ========== 폰트 설정 ==========
 path = "KBO Dia Gothic_medium.ttf"
-
 button_font_size = 50
 button_font = pygame.font.Font(path, button_font_size)
 hp_label_font = pygame.font.Font(None, 40)
@@ -73,19 +72,21 @@ button_data = [
 
 # ========== 노트 데이터 ==========
 original_note_data = [
-    {"number": 0, "color": "black", "lane": 0, "note_start_delays": 2400, "note_speed": 1/10},
-    {"number": 1, "color": "black", "lane": 1, "note_start_delays": 2400, "note_speed": 1/10},
-    {"number": 2, "color": "black", "lane": 2, "note_start_delays": 3400, "note_speed": 1/10},
-    {"number": 3, "color": "black", "lane": 3, "note_start_delays": 3400, "note_speed": 1/10},
-    {"number": 4, "color": "black", "lane": 0, "note_start_delays": 4400, "note_speed": 1/10},
-    {"number": 5, "color": "black", "lane": 1, "note_start_delays": 4400, "note_speed": 1/10},
-    {"number": 6, "color": "black", "lane": 2, "note_start_delays": 5400, "note_speed": 1/10},
-    {"number": 7, "color": "black", "lane": 3, "note_start_delays": 5400, "note_speed": 1/10},
-    {"number": 8, "color": "black", "lane": 0, "note_start_delays": 6400, "note_speed": 1/10},
-    {"number": 9, "color": "black", "lane": 1, "note_start_delays": 6400, "note_speed": 1/10},
-
+    {"number": 0, "color": "black", "lane": 0, "note_start_delays": 1200, "note_speed": 1/10},
+    {"number": 1, "color": "black", "lane": 1, "note_start_delays": 1200, "note_speed": 1/10},
+    {"number": 2, "color": "black", "lane": 2, "note_start_delays": 3900, "note_speed": 1/10},
+    {"number": 3, "color": "black", "lane": 3, "note_start_delays": 3900, "note_speed": 1/10},
+    {"number": 4, "color": "black", "lane": 0, "note_start_delays": 6600, "note_speed": 1/10},
+    {"number": 5, "color": "black", "lane": 1, "note_start_delays": 6600, "note_speed": 1/10},
+    {"number": 6, "color": "black", "lane": 2, "note_start_delays": 9300, "note_speed": 1/10},
+    {"number": 7, "color": "black", "lane": 3, "note_start_delays": 9300, "note_speed": 1/10},
+    {"number": 8, "color": "black", "lane": 0, "note_start_delays": 12000, "note_speed": 1/10},
+    {"number": 9, "color": "black", "lane": 1, "note_start_delays": 12000, "note_speed": 1/10},
+    {"number": 10, "color": "black", "lane": 2, "note_start_delays": 14800, "note_speed": 1/10},
+    {"number": 11, "color": "black", "lane": 3, "note_start_delays": 14800, "note_speed": 1/10},
+    {"number": 12, "color": "black", "lane": 0, "note_start_delays": 17300, "note_speed": 1/10},
+    {"number": 13, "color": "black", "lane": 1, "note_start_delays": 17300, "note_speed": 1/10},
 ]
-
 
 initial_position_outside_screen = -5  # 더 큰 값을 사용해도 됩니다.
 for note in original_note_data:
@@ -100,7 +101,6 @@ retry_button = {
     'text_color': black 
 }
 
-
 menu_button = {
     'color': white,
     'rect': pygame.Rect(screen_width - 250, screen_height // 2 + 150, 200, 50),
@@ -108,14 +108,13 @@ menu_button = {
     'font': pygame.font.Font(path, 50),
     'text_color': black 
 }
+
 button_spacing = 60
 half_spacing = button_spacing / 2
 
 total_buttons_width = retry_button['rect'].width + menu_button['rect'].width + button_spacing
 retry_button['rect'].topleft = ((screen_width - total_buttons_width) // 2, screen_height // 2 + 90)
 menu_button['rect'].topleft = (retry_button['rect'].right + button_spacing, screen_height // 2 + 90)
-
-
 
 note_data = copy.deepcopy(original_note_data)
 for note in note_data:
@@ -196,7 +195,7 @@ def stop_song():
     pygame.mixer.music.stop()
 
 def play_song_thread():
-    time.sleep(2)  # 2초 딜레이
+    time.sleep(2)
     pygame.mixer.music.load(song_file_path)
     pygame.mixer.music.play()
 
@@ -226,7 +225,9 @@ def draw_win_screen():
     screen.blit(score_text, score_rect)
     screen.blit(comb_text, comb_rect)
 
+    stop_song()
 
+    
 # ========== 메인 게임 루프 ==========
 while running:
     screen.fill(white) 
