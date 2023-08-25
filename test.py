@@ -5,8 +5,8 @@ import threading
 
 # ========== 초기 설정 ==========
 pygame.init()
-screen_width = 900
-screen_height = 700
+screen_width = 1000
+screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("test game")
 song_file_path = "sounds\\test.mp3"
@@ -38,7 +38,7 @@ running = True
 rect_x = 60
 rect_y = 10
 rect_width = 450
-rect_height = 680
+rect_height = 780
 border_thickness = 8
 note_height = 35
 note_width = 80
@@ -72,20 +72,7 @@ button_data = [
 
 # ========== 노트 데이터 ==========
 original_note_data = [
-    {"number": 0, "color": "black", "lane": 0, "note_start_delays": 1200, "note_speed": 1/10},
-    {"number": 1, "color": "black", "lane": 1, "note_start_delays": 1200, "note_speed": 1/10},
-    {"number": 2, "color": "black", "lane": 2, "note_start_delays": 3900, "note_speed": 1/10},
-    {"number": 3, "color": "black", "lane": 3, "note_start_delays": 3900, "note_speed": 1/10},
-    {"number": 4, "color": "black", "lane": 0, "note_start_delays": 6600, "note_speed": 1/10},
-    {"number": 5, "color": "black", "lane": 1, "note_start_delays": 6600, "note_speed": 1/10},
-    {"number": 6, "color": "black", "lane": 2, "note_start_delays": 9300, "note_speed": 1/10},
-    {"number": 7, "color": "black", "lane": 3, "note_start_delays": 9300, "note_speed": 1/10},
-    {"number": 8, "color": "black", "lane": 0, "note_start_delays": 12000, "note_speed": 1/10},
-    {"number": 9, "color": "black", "lane": 1, "note_start_delays": 12000, "note_speed": 1/10},
-    {"number": 10, "color": "black", "lane": 2, "note_start_delays": 14800, "note_speed": 1/10},
-    {"number": 11, "color": "black", "lane": 3, "note_start_delays": 14800, "note_speed": 1/10},
-    {"number": 12, "color": "black", "lane": 0, "note_start_delays": 17300, "note_speed": 1/10},
-    {"number": 13, "color": "black", "lane": 1, "note_start_delays": 17300, "note_speed": 1/10},
+    {"number": 0, "color": "black", "lane": 0, "note_start_delays": 1200, "note_speed": 1/10}
 ]
 
 initial_position_outside_screen = -5  # 더 큰 값을 사용해도 됩니다.
@@ -95,7 +82,7 @@ for note in original_note_data:
 
 retry_button = {
     'color': white,
-    'rect': pygame.Rect(screen_width-32, screen_height // 2 + 50, 200, 50),
+    'rect': pygame.Rect(screen_width-22, screen_height // 2 + 50, 200, 50),
     'text': "다시 하기",
     'font': pygame.font.Font(path, 50),
     'text_color': black 
@@ -113,8 +100,8 @@ button_spacing = 60
 half_spacing = button_spacing / 2
 
 total_buttons_width = retry_button['rect'].width + menu_button['rect'].width + button_spacing
-retry_button['rect'].topleft = ((screen_width - total_buttons_width) // 2, screen_height // 2 + 90)
-menu_button['rect'].topleft = (retry_button['rect'].right + button_spacing, screen_height // 2 + 90)
+retry_button['rect'].topleft = ((screen_width - total_buttons_width) // 2, screen_height // 2 + 50)
+menu_button['rect'].topleft = (retry_button['rect'].right + button_spacing, screen_height // 2 + 50)
 
 note_data = copy.deepcopy(original_note_data)
 for note in note_data:
@@ -358,7 +345,7 @@ while running:
         screen.fill(white)
         game_over_font = pygame.font.Font(path, 100)
         game_over_text = game_over_font.render("Game Over", True, black)
-        text_rect = game_over_text.get_rect(center=(screen_width // 2, screen_height // 2))
+        text_rect = game_over_text.get_rect(center=(screen_width // 2, screen_height // 2 - 60))
 
         draw_retry_button() 
         draw_menu_button()

@@ -8,15 +8,15 @@ pygame.init()
 HOST = '127.0.0.1'
 PORT = 2001
 
-screen_width = 900
-screen_height = 700
+screen_width = 1000
+screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 white = (255, 255, 255)
 black = (0, 0, 0)
 
-small_background_color = white
-small_background_size = (800, 600) 
+multi_background_color = white
+multi_background_size = (800, 600) 
 
 list_background_color = white
 list_background_size = (770, 400)
@@ -25,7 +25,13 @@ create_multi_menu_color = white
 create_multi_menu_size = (800, 600)     
 
 loading_screen_color = white
-loading_screen_size = (900, 700)
+loading_screen_size = (1000, 800)
+
+solo_play_menu_color = white
+solo_play_menu_size = (1000, 800)
+
+solo_play_muisc_menu_color = white
+solo_play_muisc_menu_size = (400, 800)
 
 image_path = "images//main.jpg"  
 image = pygame.image.load(image_path)
@@ -34,12 +40,12 @@ image_rect.center = (screen_width // 2.5, screen_height // 2)
 
 path = "KBO Dia Gothic_medium.ttf"
 
-button_width = 230
-button_height = 90
+main_menu_button_width = 250
+main_menu_button_height = 100
 button_bg_color = white
 button_border_color = black
-button_font_size = 40
-button_font = pygame.font.Font(path, button_font_size)
+main_menu_button_font_size = 46
+button_font = pygame.font.Font(path, main_menu_button_font_size)
 
 music_path = "sounds//background_music.mp3"  
 pygame.mixer.music.load(music_path)
@@ -52,8 +58,9 @@ click_sound = pygame.mixer.Sound(click_sound_path)
 click_sound.set_volume(0.2)
 
 is_solo_button_pressed = False
+is_solo_background_shown = False
 is_multi_button_pressed = False
-is_small_background_shown = False
+is_multi_background_shown = False
 is_create_button_pressed = False
 is_ok_button_pressed = False
 is_no_button_pressed = False
@@ -72,17 +79,17 @@ text = ''
 font_input = pygame.font.Font(path, 45)
 txt_surface = font_input.render(text, True, color)
 
-close_button_rect = pygame.Rect((screen_width + small_background_size[0]) // 2 - close_button_size - 10,
-                                (screen_height - small_background_size[1]) // 2 + 10,
+close_button_rect = pygame.Rect((screen_width + multi_background_size[0]) // 2 - close_button_size - 10,
+                                (screen_height - multi_background_size[1]) // 2 + 10,
                                 close_button_size, close_button_size)
 
 list_background_rect = pygame.Rect((screen_width - list_background_size[0]) // 2,
                                         (screen_height - list_background_size[1]) // 2 + 20,
                                         list_background_size[0], list_background_size[1])
 
-small_background_rect = pygame.Rect((screen_width - small_background_size[0]) // 2,
-                                        (screen_height - small_background_size[1]) // 2,
-                                        small_background_size[0], small_background_size[1])
+multi_background_rect = pygame.Rect((screen_width - multi_background_size[0]) // 2,
+                                        (screen_height - multi_background_size[1]) // 2,
+                                        multi_background_size[0], multi_background_size[1])
 
 create_multi_menu_rect = pygame.Rect((screen_width - create_multi_menu_size[0]) // 2,
                                     (screen_height - create_multi_menu_size[1]) // 2,
@@ -92,8 +99,16 @@ loading_screen_rect = pygame.Rect((screen_width - loading_screen_size[0]) // 2,
                                         (screen_height - loading_screen_size[1]) // 2,
                                         loading_screen_size[0], loading_screen_size[1])
 
-solo_button_rect = pygame.Rect(screen_width - button_width - 60, 300, button_width, button_height)
-multi_button_rect = pygame.Rect(screen_width - button_width - 60, 420, button_width, button_height)
+solo_play_menu_rect = pygame.Rect((screen_width - solo_play_menu_size[0]) // 2,
+                                        (screen_height - solo_play_menu_size[1]) // 2,
+                                        solo_play_menu_size[0], solo_play_menu_size[1])
+
+solo_play_muisc_menu_rect = pygame.Rect((screen_width - solo_play_menu_size[0]) // 2+600,
+                                        (screen_height - solo_play_menu_size[1]) // 2,
+                                        solo_play_muisc_menu_size[0], solo_play_muisc_menu_size[1])
+
+solo_button_rect = pygame.Rect(screen_width - main_menu_button_width - 90, 340, main_menu_button_width, main_menu_button_height)
+multi_button_rect = pygame.Rect(screen_width - main_menu_button_width - 90, 490, main_menu_button_width, main_menu_button_height)
 
 join_button_rect = pygame.Rect(list_background_rect.left + 50, list_background_rect.bottom + 9, 180, 60)
 create_button_rect = pygame.Rect(list_background_rect.right - 230, list_background_rect.bottom + 9, 180, 60)
@@ -104,21 +119,21 @@ no_button_rect = pygame.Rect(create_multi_menu_rect.right - 380, create_multi_me
 server_data = "" 
 room_name = ''
 
+music_data = [
+    {"number": 0, "title": "테스트1", "music_detail": "테스트 1과 관련된 내용"},
+    {"number": 1, "title": "테스트2", "music_detail": "테스트 2과 관련된 내용"},
+    {"number": 2, "title": "테스트3", "music_detail": "테스트 3과 관련된 내용"},
+    {"number": 3, "title": "테스트4", "music_detail": "테스트 4과 관련된 내용"},
+    {"number": 4, "title": "테스트5", "music_detail": "테스트 5과 관련된 내용"}
+]
+
 def draw_button(text, x, y, width, height, is_pressed):
     button_rect = pygame.Rect(x, y, width, height)
     pygame.draw.rect(screen, button_bg_color, button_rect)
-
-    if is_pressed:
-        button_rect.inflate_ip(10, 10)
-        pygame.draw.rect(screen, black, button_rect, 8)
-        button_text = button_font.render(text, True, black)
-        button_text_rect = button_text.get_rect(center=button_rect.center)
-        screen.blit(button_text, button_text_rect)
-    else:
-        pygame.draw.rect(screen, button_border_color, button_rect, 4)
-        button_text = button_font.render(text, True, black)
-        button_text_rect = button_text.get_rect(center=button_rect.center)
-        screen.blit(button_text, button_text_rect)
+    pygame.draw.rect(screen, button_border_color, button_rect, 8)
+    button_text = button_font.render(text, True, black)
+    button_text_rect = button_text.get_rect(center=button_rect.center)
+    screen.blit(button_text, button_text_rect)
 
 def create_buttons():
     draw_button("참가하기", join_button_rect.x, join_button_rect.y, join_button_rect.width, join_button_rect.height, False)
@@ -136,21 +151,21 @@ def create_multi_menu():
     pygame.draw.rect(screen, create_multi_menu_color, create_multi_menu_rect)
     pygame.draw.rect(screen, black, create_multi_menu_rect, 4)
 
-def draw_small_background():
+def draw_multi_background():
     global server_data
-    pygame.draw.rect(screen, small_background_color, small_background_rect)
-    pygame.draw.rect(screen, black, small_background_rect, 4)
+    pygame.draw.rect(screen, multi_background_color, multi_background_rect)
+    pygame.draw.rect(screen, black, multi_background_rect, 4)
 
     pygame.draw.rect(screen, list_background_color, list_background_rect)
     pygame.draw.rect(screen, black, list_background_rect, 4)
 
     font_small = pygame.font.Font(path, 50)
     text = font_small.render("방 목록", True, black)
-    text_rect = text.get_rect(center=(small_background_rect.centerx, small_background_rect.top + 60))
+    text_rect = text.get_rect(center=(multi_background_rect.centerx, multi_background_rect.top + 60))
     screen.blit(text, text_rect)
 
     server_data_text = font_small.render(server_data, True, black)
-    server_data_rect = server_data_text.get_rect(center=(small_background_rect.centerx, text_rect.bottom + 40))
+    server_data_rect = server_data_text.get_rect(center=(multi_background_rect.centerx, text_rect.bottom + 40))
     screen.blit(server_data_text, server_data_rect)
 
 def close_button():
@@ -171,6 +186,75 @@ def loading_screen():
     text_rect = text_surface.get_rect(center=loading_screen_rect.center)
     screen.blit(text_surface, text_rect)
     
+def blit_text_centered(surface, text_surface, rect):
+    text_rect = text_surface.get_rect(center=rect.center)
+    surface.blit(text_surface, text_rect)
+
+def solo_play_menu():
+    pygame.draw.rect(screen, solo_play_menu_color, solo_play_menu_rect)
+    font = pygame.font.Font(path, 50)  
+    text_surface = font.render("START", True, black)  
+    text_rect = text_surface.get_rect()
+    text_rect.midleft = (solo_play_menu_rect.left + 15, solo_play_menu_rect.centery)  
+    
+    circle_offset = -50 
+    circle_center = (text_rect.centerx + circle_offset, text_rect.centery)
+
+    radius1 = 210
+    pygame.draw.circle(screen, white, circle_center, radius1) 
+    pygame.draw.circle(screen, black, circle_center, radius1, 4) 
+
+    radius2 = 190
+    pygame.draw.circle(screen, white, circle_center, radius2) 
+    pygame.draw.circle(screen, black, circle_center, radius2, 4) 
+
+    info_font = pygame.font.Font(path, 35)
+    rect_width = 230
+    rect_height = 90
+    rect_thickness = 5
+    
+    rect_top = pygame.Rect(text_rect.centerx - rect_width/2 + 30, text_rect.centery - radius1 - rect_height-20, rect_width, rect_height)
+    pygame.draw.rect(screen, white, rect_top)
+    pygame.draw.rect(screen, black, rect_top, rect_thickness)
+
+    rect_middle1 = pygame.Rect(text_rect.centerx - rect_width/2 + 280, text_rect.centery - 200, rect_width, rect_height)
+    pygame.draw.rect(screen, white, rect_middle1)
+    pygame.draw.rect(screen, black, rect_middle1, rect_thickness)
+    
+    rect_right = pygame.Rect(text_rect.centerx + radius1, text_rect.centery - rect_height/2, rect_width, rect_height)
+    pygame.draw.rect(screen, white, rect_right)
+    pygame.draw.rect(screen, black, rect_right, rect_thickness)
+
+    rect_middle2 = pygame.Rect(text_rect.centerx - rect_width/2 + 280, text_rect.centery + 110, rect_width, rect_height)
+    pygame.draw.rect(screen, white, rect_middle2)
+    pygame.draw.rect(screen, black, rect_middle2, rect_thickness)
+
+    rect_bottom = pygame.Rect(text_rect.centerx - rect_width/2 + 30, text_rect.centery + radius1+20, rect_width, rect_height)
+    pygame.draw.rect(screen, white, rect_bottom)
+    pygame.draw.rect(screen, black, rect_bottom, rect_thickness)
+
+    top_info_surface = info_font.render(music_data[current_index]["title"], True, black)
+    middle1_info_surface = info_font.render(music_data[current_index + 1]["title"], True, black)
+    right_info_surface = info_font.render(music_data[current_index + 2]["title"], True, black)
+    middle2_info_surface = info_font.render(music_data[current_index + 3]["title"], True, black)
+    bottom_info_surface = info_font.render(music_data[current_index + 4]["title"], True, black)
+
+    blit_text_centered(screen, top_info_surface, rect_top)
+    blit_text_centered(screen, middle1_info_surface, rect_middle1)
+    blit_text_centered(screen, right_info_surface, rect_right)
+    blit_text_centered(screen, middle2_info_surface, rect_middle2)
+    blit_text_centered(screen, bottom_info_surface, rect_bottom)
+
+    pygame.draw.rect(screen, solo_play_muisc_menu_color, solo_play_muisc_menu_rect)
+    pygame.draw.rect(screen, black, solo_play_muisc_menu_rect, 4)
+
+    music_detail_font = pygame.font.Font(path, 25)
+    music_detail_surface = music_detail_font.render(music_data[current_index + 2]["music_detail"], True, black)
+    blit_text_centered(screen, music_detail_surface, solo_play_muisc_menu_rect)
+
+    screen.blit(text_surface, text_rect)
+
+
 room_list = []
 
 def server():
@@ -181,16 +265,17 @@ def server():
         s.settimeout(1)
         print("서버 시작")
         while server_thread_running:
-            conn, addr = s.accept()
-            print(f"클라이언트 {addr}")
-            with conn:
-                # 방 이름 저장
+            try:
+                conn, addr = s.accept()
+                print(f"클라이언트 {addr}")
                 if room_name not in room_list:
                     room_list.append(room_name)
-                
-                # 클라이언트에게 방 목록 전송
+                    
                 rooms_string = "\n".join(room_list)
                 conn.sendall(rooms_string.encode())
+                conn.close() 
+            except socket.timeout:
+                continue
 
 def client():
     global server_data
@@ -199,11 +284,12 @@ def client():
             s.connect((HOST, PORT))
             print("서버와 연결이 되었습니다.")
             data = s.recv(1024)
-            # 서버로부터 받은 방 목록을 server_data에 저장
             server_data = data.decode()
             print(f"받는 방 목록: \n{server_data}")
     except socket.error as e:
         print(f"서버에 연결할 수 없습니다: {e}")
+
+current_index = 0
 
 while True:
     for event in pygame.event.get():
@@ -213,22 +299,34 @@ while True:
             sys.exit()
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if event.button == 4:
+                if current_index < 0:
+                    current_index += 1
+                else:
+                    current_index -= 1
+
+            if event.button == 5:
+                if current_index < len(music_data):
+                    current_index += 1
+                else:
+                    current_index = current_index - current_index + 1
+
             if solo_button_rect.collidepoint(event.pos):
                 is_solo_button_pressed = True
-                check = False
+                is_solo_background_shown = True
                 if not is_sound_played:
                     click_sound.play()
                     is_sound_played = True
 
             if multi_button_rect.collidepoint(event.pos):
                 is_multi_button_pressed = True
-                is_small_background_shown = True
+                is_multi_background_shown = True
                 if not is_sound_played:
                     click_sound.play()
                     is_sound_played = True
 
-            if close_button_rect.collidepoint(event.pos) and is_small_background_shown:
-                is_small_background_shown = False 
+            if close_button_rect.collidepoint(event.pos) and is_multi_background_shown:
+                is_multi_background_shown = False 
                 check = True
             
             if create_button_rect.collidepoint(event.pos):
@@ -273,8 +371,8 @@ while True:
                     txt_surface = font_input.render(text, True, black)
 
 
-    if is_small_background_shown and not is_create_button_pressed:
-        is_small_background_shown = True
+    if is_multi_background_shown and not is_create_button_pressed:
+        is_multi_background_shown = True
         is_create_button_pressed = False
         client_thread = threading.Thread(target=client)
         client_thread.start()
@@ -284,15 +382,17 @@ while True:
         client_thread = threading.Thread(target=client)
         client_thread.start()
 
-    # 이후에 화면 그리기
     screen.fill(white)
 
     screen.blit(image, image_rect)
-    draw_button("솔로 플레이", solo_button_rect.x, solo_button_rect.y, button_width, button_height, is_solo_button_pressed)
-    draw_button("멀티 플레이", multi_button_rect.x, multi_button_rect.y, button_width, button_height, is_multi_button_pressed)
+    draw_button("솔로 플레이", solo_button_rect.x, solo_button_rect.y, main_menu_button_width, main_menu_button_height, is_solo_button_pressed)
+    draw_button("멀티 플레이", multi_button_rect.x, multi_button_rect.y, main_menu_button_width, main_menu_button_height, is_multi_button_pressed)
 
-    if is_small_background_shown:
-        draw_small_background()
+    if is_solo_background_shown:
+        solo_play_menu()
+
+    if is_multi_background_shown:
+        draw_multi_background()
         create_buttons()
         close_button()
 
@@ -306,6 +406,8 @@ while True:
         reate_multi_menu_buttons()
 
     if is_ok_button_pressed:
-        draw_small_background()
+        draw_multi_background()
+
+    
 
     pygame.display.update()
