@@ -6,7 +6,7 @@ import threading
 pygame.init()
 
 HOST = '127.0.0.1'
-PORT = 65433
+PORT = 2001
 
 screen_width = 900
 screen_height = 700
@@ -24,6 +24,9 @@ list_background_size = (770, 400)
 create_multi_menu_color = white  
 create_multi_menu_size = (800, 600)     
 
+loading_screen_color = white
+loading_screen_size = (900, 700)
+
 image_path = "images//main.jpg"  
 image = pygame.image.load(image_path)
 image_rect = image.get_rect()
@@ -38,13 +41,13 @@ button_border_color = black
 button_font_size = 40
 button_font = pygame.font.Font(path, button_font_size)
 
-music_path = "sounds//background_music.mp3"  # 음악 파일 경로를 해당 음악 파일의 실제 경로로 바꾸세요
+music_path = "sounds//background_music.mp3"  
 pygame.mixer.music.load(music_path)
-pygame.mixer.music.set_volume(0.1)  # 음량 설정
+pygame.mixer.music.set_volume(0.1)  
 pygame.mixer.music.play(-1)
 
 is_sound_played = False
-click_sound_path = "sounds//switch.mp3"  # 클릭 소리 파일 경로를 해당 소리 파일의 실제 경로로 바꾸세요
+click_sound_path = "sounds//switch.mp3"  
 click_sound = pygame.mixer.Sound(click_sound_path)
 click_sound.set_volume(0.2)
 
@@ -55,6 +58,8 @@ is_create_button_pressed = False
 is_ok_button_pressed = False
 is_no_button_pressed = False
 check = True
+
+server_thread_running = True
 
 close_button_size = 25
 
@@ -82,6 +87,10 @@ small_background_rect = pygame.Rect((screen_width - small_background_size[0]) //
 create_multi_menu_rect = pygame.Rect((screen_width - create_multi_menu_size[0]) // 2,
                                     (screen_height - create_multi_menu_size[1]) // 2,
                                     create_multi_menu_size[0], create_multi_menu_size[1])
+
+loading_screen_rect = pygame.Rect((screen_width - loading_screen_size[0]) // 2,
+                                        (screen_height - loading_screen_size[1]) // 2,
+                                        loading_screen_size[0], loading_screen_size[1])
 
 solo_button_rect = pygame.Rect(screen_width - button_width - 60, 300, button_width, button_height)
 multi_button_rect = pygame.Rect(screen_width - button_width - 60, 420, button_width, button_height)
@@ -143,8 +152,6 @@ def draw_small_background():
     server_data_text = font_small.render(server_data, True, black)
     server_data_rect = server_data_text.get_rect(center=(small_background_rect.centerx, text_rect.bottom + 40))
     screen.blit(server_data_text, server_data_rect)
-    # while check==True:
-    #         client()
 
 def close_button():
     pygame.draw.line(screen, black, close_button_rect.topleft, close_button_rect.bottomright, 6)
@@ -156,26 +163,52 @@ def multi_input_box():
     screen.blit(txt_surface, (input_box.x+8, input_box.y+10))
     pygame.draw.rect(screen, color, input_box, 4)
 
-def client():
-    global server_data
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
-        data = s.recv(1024)
-        server_data = data.decode()
+def loading_screen():
+    pygame.draw.rect(screen, loading_screen_color, loading_screen_rect)
+
+    font = pygame.font.Font(path, 40)
+    text_surface = font.render("상대방을 기다리는 중", True, black)
+    text_rect = text_surface.get_rect(center=loading_screen_rect.center)
+    screen.blit(text_surface, text_rect)
+    
+room_list = []
 
 def server():
-    global room_name
+    global room_name, server_thread_running, room_list
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         s.listen()
-        conn, addr = s.accept()
-        with conn:
-            conn.sendall(room_name.encode())
-            data = conn.recv(1024)
+        s.settimeout(1)
+        print("서버 시작")
+        while server_thread_running:
+            conn, addr = s.accept()
+            print(f"클라이언트 {addr}")
+            with conn:
+                # 방 이름 저장
+                if room_name not in room_list:
+                    room_list.append(room_name)
+                
+                # 클라이언트에게 방 목록 전송
+                rooms_string = "\n".join(room_list)
+                conn.sendall(rooms_string.encode())
+
+def client():
+    global server_data
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((HOST, PORT))
+            print("서버와 연결이 되었습니다.")
+            data = s.recv(1024)
+            # 서버로부터 받은 방 목록을 server_data에 저장
+            server_data = data.decode()
+            print(f"받는 방 목록: \n{server_data}")
+    except socket.error as e:
+        print(f"서버에 연결할 수 없습니다: {e}")
 
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            server_thread_running = False 
             pygame.quit()
             sys.exit()
 
@@ -217,7 +250,8 @@ while True:
             if ok_button_rect.collidepoint(event.pos):
                 is_ok_button_pressed = True
                 is_create_button_pressed = False
-                check = True
+                room_name = text 
+                text = ''
 
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             is_solo_button_pressed = False
@@ -227,15 +261,30 @@ while True:
         if event.type == pygame.KEYDOWN:
             if active:
                 if event.key == pygame.K_RETURN:
-                    print(text)
                     room_name = text 
                     text = ''
+                    is_ok_button_pressed = True
+
                 elif event.key == pygame.K_BACKSPACE:
                     text = text[:-1]
+                    txt_surface = font_input.render(text, True, black)  
                 else:
                     text += event.unicode
-                txt_surface = font_input.render(text, True, black)
+                    txt_surface = font_input.render(text, True, black)
 
+
+    if is_small_background_shown and not is_create_button_pressed:
+        is_small_background_shown = True
+        is_create_button_pressed = False
+        client_thread = threading.Thread(target=client)
+        client_thread.start()
+
+    if is_ok_button_pressed:
+        is_ok_button_pressed = False
+        client_thread = threading.Thread(target=client)
+        client_thread.start()
+
+    # 이후에 화면 그리기
     screen.fill(white)
 
     screen.blit(image, image_rect)
@@ -246,9 +295,8 @@ while True:
         draw_small_background()
         create_buttons()
         close_button()
-    
+
     if is_create_button_pressed:
-        server()
         label_font = pygame.font.Font(path, 50)
         label_text = label_font.render("방 이름", True, black)
         label_rect = label_text.get_rect(right=input_box.left - 10, centery=input_box.centery)
@@ -256,6 +304,8 @@ while True:
         screen.blit(label_text, label_rect)
         multi_input_box()
         reate_multi_menu_buttons()
-    
+
+    if is_ok_button_pressed:
+        draw_small_background()
 
     pygame.display.update()
