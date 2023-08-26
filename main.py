@@ -64,6 +64,8 @@ is_multi_background_shown = False
 is_create_button_pressed = False
 is_ok_button_pressed = False
 is_no_button_pressed = False
+is_join_button_visible = True
+is_create_button_visible = False
 
 close_button_size = 25
 
@@ -117,14 +119,14 @@ server_data = ""
 room_name = ''
 
 music_data = [
-    {"number": 0, "title": "테스트1", "music_detail": "테스트 1과 관련된 내용"},
-    {"number": 1, "title": "테스트2", "music_detail": "테스트 2과 관련된 내용"},
-    {"number": 2, "title": "테스트3", "music_detail": "테스트 3과 관련된 내용"},
-    {"number": 3, "title": "테스트4", "music_detail": "테스트 4과 관련된 내용"},
-    {"number": 4, "title": "테스트5", "music_detail": "테스트 5과 관련된 내용"},
-    {"number": 5, "title": "테스트6", "music_detail": "테스트 6과 관련된 내용"},
-    {"number": 6, "title": "테스트7", "music_detail": "테스트 7과 관련된 내용"},
-    {"number": 7, "title": "테스트8", "music_detail": "테스트 8과 관련된 내용"},
+    {"number": 0, "title": "테스트1", "music_detail": "테스트 1과 관련된 내용", "music_list": "test1"},
+    {"number": 1, "title": "테스트2", "music_detail": "테스트 2과 관련된 내용", "music_list": "test2"},
+    {"number": 2, "title": "테스트3", "music_detail": "테스트 3과 관련된 내용", "music_list": "test3"},
+    {"number": 3, "title": "테스트4", "music_detail": "테스트 4과 관련된 내용", "music_list": "test4"},
+    {"number": 4, "title": "테스트5", "music_detail": "테스트 5과 관련된 내용", "music_list": "test5"},
+    {"number": 5, "title": "테스트6", "music_detail": "테스트 6과 관련된 내용", "music_list": "test6"},
+    {"number": 6, "title": "테스트7", "music_detail": "테스트 7과 관련된 내용", "music_list": "test7"},
+    {"number": 7, "title": "테스트8", "music_detail": "테스트 8과 관련된 내용", "music_list": "test8"},
 ]
 
 def draw_button(text, x, y, width, height, is_pressed):
@@ -279,12 +281,12 @@ while True:
             sys.exit()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 4:  
+            if event.button == 4 and  is_solo_button_pressed:  
                 current_index += 1
                 if current_index > 7: 
                     current_index = 0
 
-            elif event.button == 5: 
+            elif event.button == 5 and  is_solo_button_pressed: 
                 current_index -= 1
                 if current_index < 0: 
                     current_index = 7
@@ -292,6 +294,8 @@ while True:
             if solo_button_rect.collidepoint(event.pos):
                 is_solo_button_pressed = True
                 is_solo_background_shown = True
+                is_multi_button_pressed = False
+                is_multi_background_shown = False
                 if not is_sound_played:
                     click_sound.play()
                     is_sound_played = True
@@ -299,6 +303,8 @@ while True:
             if multi_button_rect.collidepoint(event.pos):
                 is_multi_button_pressed = True
                 is_multi_background_shown = True
+                is_solo_button_pressed = False
+                is_solo_background_shown = False
                 if not is_sound_played:
                     click_sound.play()
                     is_sound_played = True
@@ -321,8 +327,6 @@ while True:
             if ok_button_rect.collidepoint(event.pos):
                 is_ok_button_pressed = True
                 is_create_button_pressed = False
-                room_name = text 
-                text = ''
 
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             is_solo_button_pressed = False
@@ -331,8 +335,6 @@ while True:
         
         if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    room_name = text 
-                    text = ''
                     is_ok_button_pressed = True
 
                 elif event.key == pygame.K_BACKSPACE:
@@ -382,7 +384,5 @@ while True:
 
     if is_ok_button_pressed:
         loading_screen()
-
-    
 
     pygame.display.update()
