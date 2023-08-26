@@ -11,24 +11,18 @@ def receive_messages(client_socket):
             break
 
 def main():
-    host = '127.0.0.1'  # 첫 번째 클라이언트의 IP 주소
+    host = '127.0.0.1'
     port = 12345
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.bind((host, port))
-    client_socket.listen(1)
+    client_socket.connect((host, port))
 
-    print(f"[*] Listening on {host}:{port}")
-
-    other_client, addr = client_socket.accept()
-    print(f"[*] Connected to: {addr[0]}:{addr[1]}")
-
-    receive_thread = threading.Thread(target=receive_messages, args=(other_client,))
+    receive_thread = threading.Thread(target=receive_messages, args=(client_socket,))
     receive_thread.start()
 
     while True:
         message = input()
-        other_client.send(message.encode('utf-8'))
+        client_socket.send(message.encode('utf-8'))
 
 if __name__ == "__main__":
     main()
