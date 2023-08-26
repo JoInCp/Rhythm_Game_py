@@ -5,9 +5,11 @@ import threading
 
 pygame.init()
 
-# HOST = '211.114.120.201'
 HOST = '127.0.0.1'
-PORT = 31242
+PORT = 31243
+self_ip = '127.0.0.1'
+partner_ip = '127.0.0.1' 
+partner_port = 31243
 
 screen_width = 1000
 screen_height = 800
@@ -255,11 +257,11 @@ def solo_play_menu():
     pygame.draw.rect(screen, white, rect_bottom)
     pygame.draw.rect(screen, black, rect_bottom, rect_thickness)
 
-    top_info_surface = info_font.render(music_data[(current_index + 3) % len(music_data)]["title"], True, black)
-    middle1_info_surface = info_font.render(music_data[(current_index + 4) % len(music_data)]["title"], True, black)
-    right_info_surface = info_font.render(music_data[(current_index ) % len(music_data)]["title"], True, black)
-    middle2_info_surface = info_font.render(music_data[(current_index + 1) % len(music_data)]["title"], True, black)
-    bottom_info_surface = info_font.render(music_data[(current_index + 2) % len(music_data)]["title"], True, black)
+    top_info_surface = info_font.render(music_data[(current_index ) % len(music_data)]["title"], True, black)
+    middle1_info_surface = info_font.render(music_data[(current_index + 1) % len(music_data)]["title"], True, black)
+    right_info_surface = info_font.render(music_data[(current_index + 2) % len(music_data)]["title"], True, black)
+    middle2_info_surface = info_font.render(music_data[(current_index + 3) % len(music_data)]["title"], True, black)
+    bottom_info_surface = info_font.render(music_data[(current_index + 4) % len(music_data)]["title"], True, black)
 
     blit_text_centered(screen, top_info_surface, rect_top)
     blit_text_centered(screen, middle1_info_surface, rect_middle1)
@@ -268,7 +270,7 @@ def solo_play_menu():
     blit_text_centered(screen, bottom_info_surface, rect_bottom)
 
     music_detail_font = pygame.font.Font(path, 25)
-    music_detail_surface = music_detail_font.render(music_data[current_index % len(music_data)]["music_detail"], True, black)
+    music_detail_surface = music_detail_font.render(music_data[(current_index + 2) % len(music_data)]["music_detail"], True, black)
     blit_text_centered(screen, music_detail_surface, solo_play_muisc_menu_rect)
     screen.blit(text_surface, text_rect)
 
@@ -276,36 +278,52 @@ def solo_play_menu():
 room_list = []
 
 def server():
-    global room_name, server_thread_running, room_list
+    global self_ip
+    # 서버로 클라이언트가 접속하면 IP 주소를 얻어옴
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.connect(("8.8.8.8", 80))
+        self_ip = s.getsockname()[0]
+        print(f"서버 IP 주소: {self_ip}")
+    
+    # 클라이언트들이 직접 연결하도록 기다림
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((HOST, PORT))
+        s.bind((self_ip, PORT))
         s.listen()
-        s.settimeout(1)
         print("서버 시작")
         while server_thread_running:
             try:
                 conn, addr = s.accept()
-                print(f"클라이언트 {addr}")
-                if room_name not in room_list:
-                    room_list.append(room_name)
-                    
-                rooms_string = "\n".join(room_list)
-                conn.sendall(rooms_string.encode())
-                conn.close() 
+                print(f"클라이언트 {addr} 접속")
+                threading.Thread(target=handle_client, args=(conn,)).start()
             except socket.timeout:
                 continue
 
+def handle_client(conn):
+    global partner_ip
+    # 연결된 클라이언트에게 자신의 IP 주소를 전달
+    conn.sendall(self_ip.encode())
+    # 상대방의 IP 주소를 받음
+    partner_ip = conn.recv(1024).decode()
+    print(f"상대방 IP 주소: {partner_ip}")
+    conn.close()
+
 def client():
-    global server_data
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    global self_ip, partner_ip
+    # 자신의 IP 주소를 얻어옴
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.connect(("8.8.8.8", 80))
+        self_ip = s.getsockname()[0]
+        print(f"클라이언트 IP 주소: {self_ip}")
+    
+    # 서버에 연결하여 상대방의 IP 주소를 얻어옴
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
             s.connect((HOST, PORT))
             print("서버와 연결이 되었습니다.")
-            data = s.recv(1024)
-            server_data = data.decode()
-            print(f"받는 방 목록: \n{server_data}")
-    except socket.error as e:
-        print(f"서버에 연결할 수 없습니다: {e}")
+            partner_ip = s.recv(1024).decode()
+            print(f"상대방 IP 주소: {partner_ip}")
+        except socket.error as e:
+            print(f"서버에 연결할 수 없습니다: {e}")
 
 current_index = 0
 
@@ -317,13 +335,15 @@ while True:
             sys.exit()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 4:  # 마우스 휠을 위로 움직였을 때
-                if current_index > 0:
-                    current_index -= 1
+            if event.button == 4:  
+                current_index += 1
+                if current_index > 7: 
+                    current_index = 0
 
-            elif event.button == 5:  # 마우스 휠을 아래로 움직였을 때
-                if current_index < len(music_data) - 1:
-                    current_index += 1
+            elif event.button == 5: 
+                current_index -= 1
+                if current_index < 0: 
+                    current_index = 7
 
             if solo_button_rect.collidepoint(event.pos):
                 is_solo_button_pressed = True
@@ -385,13 +405,13 @@ while True:
             
                 if event.key == pygame.K_UP:
                     current_index += 1
-                    if current_index > 4:  # 리스트의 마지막 값
+                    if current_index > 7: 
                         current_index = 0
 
                 elif event.key == pygame.K_DOWN:
                     current_index -= 1
-                    if current_index < 0:  # 리스트의 첫 번째 값
-                        current_index = 4
+                    if current_index < 0: 
+                        current_index = 7
 
 
     if is_multi_background_shown and not is_create_button_pressed:
@@ -400,10 +420,10 @@ while True:
         client_thread = threading.Thread(target=client)
         client_thread.start()
 
-    if is_ok_button_pressed:
-        is_ok_button_pressed = False
-        client_thread = threading.Thread(target=client)
-        client_thread.start()
+    # if is_ok_button_pressed:
+        # is_ok_button_pressed = False
+        # client_thread = threading.Thread(target=client)
+        # client_thread.start()
 
     screen.fill(white)
 
@@ -429,7 +449,7 @@ while True:
         reate_multi_menu_buttons()
 
     if is_ok_button_pressed:
-        draw_multi_background()
+        loading_screen()
 
     
 
