@@ -5,12 +5,6 @@ import threading
 
 pygame.init()
 
-HOST = '127.0.0.1'
-PORT = 31243
-self_ip = '127.0.0.1'
-partner_ip = '127.0.0.1' 
-partner_port = 31243
-
 screen_width = 1000
 screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -70,9 +64,6 @@ is_multi_background_shown = False
 is_create_button_pressed = False
 is_ok_button_pressed = False
 is_no_button_pressed = False
-check = True
-
-server_thread_running = True
 
 close_button_size = 25
 
@@ -144,9 +135,17 @@ def draw_button(text, x, y, width, height, is_pressed):
     button_text_rect = button_text.get_rect(center=button_rect.center)
     screen.blit(button_text, button_text_rect)
 
+def draw_button2(text, x, y, width, height, is_pressed):
+    button_rect = pygame.Rect(x, y, width, height)
+    pygame.draw.rect(screen, button_bg_color, button_rect)
+    pygame.draw.rect(screen, button_border_color, button_rect, 4)
+    button_text = button_font.render(text, True, black)
+    button_text_rect = button_text.get_rect(center=button_rect.center)
+    screen.blit(button_text, button_text_rect)
+
 def create_buttons():
-    draw_button("참가하기", join_button_rect.x, join_button_rect.y, join_button_rect.width, join_button_rect.height, False)
-    draw_button("방 만들기", create_button_rect.x, create_button_rect.y, create_button_rect.width, create_button_rect.height, is_create_button_pressed)
+    draw_button2("참가하기", join_button_rect.x, join_button_rect.y, join_button_rect.width, join_button_rect.height, False)
+    draw_button2("방 만들기", create_button_rect.x, create_button_rect.y, create_button_rect.width, create_button_rect.height, is_create_button_pressed)
 
 def reate_multi_menu_buttons():
     draw_button("확인", ok_button_rect.x, ok_button_rect.y, ok_button_rect.width, ok_button_rect.height, is_ok_button_pressed)
@@ -172,10 +171,6 @@ def draw_multi_background():
     text = font_small.render("방 목록", True, black)
     text_rect = text.get_rect(center=(multi_background_rect.centerx, multi_background_rect.top + 60))
     screen.blit(text, text_rect)
-
-    server_data_text = font_small.render(server_data, True, black)
-    server_data_rect = server_data_text.get_rect(center=(multi_background_rect.centerx, text_rect.bottom + 40))
-    screen.blit(server_data_text, server_data_rect)
 
 def close_button():
     pygame.draw.line(screen, black, close_button_rect.topleft, close_button_rect.bottomright, 6)
@@ -274,57 +269,6 @@ def solo_play_menu():
     blit_text_centered(screen, music_detail_surface, solo_play_muisc_menu_rect)
     screen.blit(text_surface, text_rect)
 
-
-room_list = []
-
-def server():
-    global self_ip
-    # 서버로 클라이언트가 접속하면 IP 주소를 얻어옴
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-        s.connect(("8.8.8.8", 80))
-        self_ip = s.getsockname()[0]
-        print(f"서버 IP 주소: {self_ip}")
-    
-    # 클라이언트들이 직접 연결하도록 기다림
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((self_ip, PORT))
-        s.listen()
-        print("서버 시작")
-        while server_thread_running:
-            try:
-                conn, addr = s.accept()
-                print(f"클라이언트 {addr} 접속")
-                threading.Thread(target=handle_client, args=(conn,)).start()
-            except socket.timeout:
-                continue
-
-def handle_client(conn):
-    global partner_ip
-    # 연결된 클라이언트에게 자신의 IP 주소를 전달
-    conn.sendall(self_ip.encode())
-    # 상대방의 IP 주소를 받음
-    partner_ip = conn.recv(1024).decode()
-    print(f"상대방 IP 주소: {partner_ip}")
-    conn.close()
-
-def client():
-    global self_ip, partner_ip
-    # 자신의 IP 주소를 얻어옴
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-        s.connect(("8.8.8.8", 80))
-        self_ip = s.getsockname()[0]
-        print(f"클라이언트 IP 주소: {self_ip}")
-    
-    # 서버에 연결하여 상대방의 IP 주소를 얻어옴
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        try:
-            s.connect((HOST, PORT))
-            print("서버와 연결이 되었습니다.")
-            partner_ip = s.recv(1024).decode()
-            print(f"상대방 IP 주소: {partner_ip}")
-        except socket.error as e:
-            print(f"서버에 연결할 수 없습니다: {e}")
-
 current_index = 0
 
 while True:
@@ -361,13 +305,9 @@ while True:
 
             if close_button_rect.collidepoint(event.pos) and is_multi_background_shown:
                 is_multi_background_shown = False 
-                check = True
             
             if create_button_rect.collidepoint(event.pos):
                 is_create_button_pressed = True
-                check = True
-                server_thread = threading.Thread(target=server)
-                server_thread.start()
 
             if input_box.collidepoint(event.pos):
                 active = not active
@@ -377,7 +317,6 @@ while True:
             
             if no_button_rect.collidepoint(event.pos):
                 is_create_button_pressed = False
-                check = True
             
             if ok_button_rect.collidepoint(event.pos):
                 is_ok_button_pressed = True
@@ -417,13 +356,6 @@ while True:
     if is_multi_background_shown and not is_create_button_pressed:
         is_multi_background_shown = True
         is_create_button_pressed = False
-        client_thread = threading.Thread(target=client)
-        client_thread.start()
-
-    # if is_ok_button_pressed:
-        # is_ok_button_pressed = False
-        # client_thread = threading.Thread(target=client)
-        # client_thread.start()
 
     screen.fill(white)
 
