@@ -5,8 +5,9 @@ import threading
 
 pygame.init()
 
+# HOST = '211.114.120.201'
 HOST = '127.0.0.1'
-PORT = 2001
+PORT = 31242
 
 screen_width = 1000
 screen_height = 800
@@ -32,6 +33,9 @@ solo_play_menu_size = (1000, 800)
 
 solo_play_muisc_menu_color = white
 solo_play_muisc_menu_size = (400, 800)
+
+music_choice_color = white
+music_choice_size = (240, 100)
 
 image_path = "images//main.jpg"  
 image = pygame.image.load(image_path)
@@ -124,7 +128,10 @@ music_data = [
     {"number": 1, "title": "테스트2", "music_detail": "테스트 2과 관련된 내용"},
     {"number": 2, "title": "테스트3", "music_detail": "테스트 3과 관련된 내용"},
     {"number": 3, "title": "테스트4", "music_detail": "테스트 4과 관련된 내용"},
-    {"number": 4, "title": "테스트5", "music_detail": "테스트 5과 관련된 내용"}
+    {"number": 4, "title": "테스트5", "music_detail": "테스트 5과 관련된 내용"},
+    {"number": 5, "title": "테스트6", "music_detail": "테스트 6과 관련된 내용"},
+    {"number": 6, "title": "테스트7", "music_detail": "테스트 7과 관련된 내용"},
+    {"number": 7, "title": "테스트8", "music_detail": "테스트 8과 관련된 내용"},
 ]
 
 def draw_button(text, x, y, width, height, is_pressed):
@@ -214,30 +221,45 @@ def solo_play_menu():
     rect_thickness = 5
     
     rect_top = pygame.Rect(text_rect.centerx - rect_width/2 + 30, text_rect.centery - radius1 - rect_height-20, rect_width, rect_height)
+    
+    rect_middle1 = pygame.Rect(text_rect.centerx - rect_width/2 + 280, text_rect.centery - 200, rect_width, rect_height)
+    
+    rect_right = pygame.Rect(text_rect.centerx + radius1, text_rect.centery - rect_height/2, rect_width, rect_height)
+    
+    rect_middle2 = pygame.Rect(text_rect.centerx - rect_width/2 + 280, text_rect.centery + 110, rect_width, rect_height)
+    
+    rect_bottom = pygame.Rect(text_rect.centerx - rect_width/2 + 30, text_rect.centery + radius1+20, rect_width, rect_height)
+    
+    pygame.draw.rect(screen, solo_play_muisc_menu_color, solo_play_muisc_menu_rect)
+    pygame.draw.rect(screen, black, solo_play_muisc_menu_rect, 4)
+
+    padding = 15
+    right_box_rect = pygame.Rect(rect_right.left - padding, rect_right.top - padding, 
+                                rect_right.width + 2*padding, rect_right.height + 2*padding)
+    
+    pygame.draw.rect(screen, white, right_box_rect)
+    pygame.draw.rect(screen, black, right_box_rect, 8) 
+
     pygame.draw.rect(screen, white, rect_top)
     pygame.draw.rect(screen, black, rect_top, rect_thickness)
 
-    rect_middle1 = pygame.Rect(text_rect.centerx - rect_width/2 + 280, text_rect.centery - 200, rect_width, rect_height)
     pygame.draw.rect(screen, white, rect_middle1)
     pygame.draw.rect(screen, black, rect_middle1, rect_thickness)
-    
-    rect_right = pygame.Rect(text_rect.centerx + radius1, text_rect.centery - rect_height/2, rect_width, rect_height)
+
     pygame.draw.rect(screen, white, rect_right)
     pygame.draw.rect(screen, black, rect_right, rect_thickness)
 
-    rect_middle2 = pygame.Rect(text_rect.centerx - rect_width/2 + 280, text_rect.centery + 110, rect_width, rect_height)
     pygame.draw.rect(screen, white, rect_middle2)
     pygame.draw.rect(screen, black, rect_middle2, rect_thickness)
 
-    rect_bottom = pygame.Rect(text_rect.centerx - rect_width/2 + 30, text_rect.centery + radius1+20, rect_width, rect_height)
     pygame.draw.rect(screen, white, rect_bottom)
     pygame.draw.rect(screen, black, rect_bottom, rect_thickness)
 
-    top_info_surface = info_font.render(music_data[current_index]["title"], True, black)
-    middle1_info_surface = info_font.render(music_data[current_index + 1]["title"], True, black)
-    right_info_surface = info_font.render(music_data[current_index + 2]["title"], True, black)
-    middle2_info_surface = info_font.render(music_data[current_index + 3]["title"], True, black)
-    bottom_info_surface = info_font.render(music_data[current_index + 4]["title"], True, black)
+    top_info_surface = info_font.render(music_data[(current_index + 3) % len(music_data)]["title"], True, black)
+    middle1_info_surface = info_font.render(music_data[(current_index + 4) % len(music_data)]["title"], True, black)
+    right_info_surface = info_font.render(music_data[(current_index ) % len(music_data)]["title"], True, black)
+    middle2_info_surface = info_font.render(music_data[(current_index + 1) % len(music_data)]["title"], True, black)
+    bottom_info_surface = info_font.render(music_data[(current_index + 2) % len(music_data)]["title"], True, black)
 
     blit_text_centered(screen, top_info_surface, rect_top)
     blit_text_centered(screen, middle1_info_surface, rect_middle1)
@@ -245,13 +267,9 @@ def solo_play_menu():
     blit_text_centered(screen, middle2_info_surface, rect_middle2)
     blit_text_centered(screen, bottom_info_surface, rect_bottom)
 
-    pygame.draw.rect(screen, solo_play_muisc_menu_color, solo_play_muisc_menu_rect)
-    pygame.draw.rect(screen, black, solo_play_muisc_menu_rect, 4)
-
     music_detail_font = pygame.font.Font(path, 25)
-    music_detail_surface = music_detail_font.render(music_data[current_index + 2]["music_detail"], True, black)
+    music_detail_surface = music_detail_font.render(music_data[current_index % len(music_data)]["music_detail"], True, black)
     blit_text_centered(screen, music_detail_surface, solo_play_muisc_menu_rect)
-
     screen.blit(text_surface, text_rect)
 
 
@@ -298,18 +316,14 @@ while True:
             pygame.quit()
             sys.exit()
 
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if event.button == 4:
-                if current_index < 0:
-                    current_index += 1
-                else:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 4:  # 마우스 휠을 위로 움직였을 때
+                if current_index > 0:
                     current_index -= 1
 
-            if event.button == 5:
-                if current_index < len(music_data):
+            elif event.button == 5:  # 마우스 휠을 아래로 움직였을 때
+                if current_index < len(music_data) - 1:
                     current_index += 1
-                else:
-                    current_index = current_index - current_index + 1
 
             if solo_button_rect.collidepoint(event.pos):
                 is_solo_button_pressed = True
@@ -357,7 +371,6 @@ while True:
             is_sound_played = False 
         
         if event.type == pygame.KEYDOWN:
-            if active:
                 if event.key == pygame.K_RETURN:
                     room_name = text 
                     text = ''
@@ -369,6 +382,16 @@ while True:
                 else:
                     text += event.unicode
                     txt_surface = font_input.render(text, True, black)
+            
+                if event.key == pygame.K_UP:
+                    current_index += 1
+                    if current_index > 4:  # 리스트의 마지막 값
+                        current_index = 0
+
+                elif event.key == pygame.K_DOWN:
+                    current_index -= 1
+                    if current_index < 0:  # 리스트의 첫 번째 값
+                        current_index = 4
 
 
     if is_multi_background_shown and not is_create_button_pressed:
