@@ -64,8 +64,6 @@ is_multi_background_shown = False
 is_create_button_pressed = False
 is_ok_button_pressed = False
 is_no_button_pressed = False
-is_join_button_visible = True
-is_create_button_visible = False
 
 close_button_size = 25
 
@@ -281,12 +279,12 @@ while True:
             sys.exit()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 4 and  is_solo_button_pressed:  
+            if event.button == 4:  
                 current_index += 1
                 if current_index > 7: 
                     current_index = 0
 
-            elif event.button == 5 and  is_solo_button_pressed: 
+            elif event.button == 5: 
                 current_index -= 1
                 if current_index < 0: 
                     current_index = 7
