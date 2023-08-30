@@ -1,6 +1,7 @@
 import pygame
 import sys
 import socket
+import json
 import threading
 import copy
 import time
@@ -20,6 +21,24 @@ class GameState(Enum):
 screen_width = 1000
 screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
+
+image_path = "images//main.jpg"  
+image = pygame.image.load(image_path)
+image_rect = image.get_rect()
+image_rect.center = (screen_width // 2.5, screen_height // 2)
+
+music_path = "sounds//background_music.mp3"  
+pygame.mixer.music.load(music_path)
+pygame.mixer.music.set_volume(0.1)  
+pygame.mixer.music.play(-1)
+
+is_sound_played = False
+click_sound_path = "sounds//switch.mp3"  
+click_sound = pygame.mixer.Sound(click_sound_path)
+click_sound.set_volume(0.2)
+
+path = "font/KBO Dia Gothic_medium.ttf"
+path2 = "font/MBC 1961 M.ttf"
 
 white = (255, 255, 255)
 black = (0, 0, 0)
@@ -46,13 +65,6 @@ solo_play_muisc_menu_size = (400, 800)
 music_choice_color = white
 music_choice_size = (240, 100)
 
-image_path = "images//main.jpg"  
-image = pygame.image.load(image_path)
-image_rect = image.get_rect()
-image_rect.center = (screen_width // 2.5, screen_height // 2)
-
-path = "KBO Dia Gothic_medium.ttf"
-
 main_menu_button_width = 250
 main_menu_button_height = 100
 button_bg_color = white
@@ -60,15 +72,13 @@ button_border_color = black
 main_menu_button_font_size = 46
 button_font = pygame.font.Font(path, main_menu_button_font_size)
 
-music_path = "sounds//background_music.mp3"  
-pygame.mixer.music.load(music_path)
-pygame.mixer.music.set_volume(0.1)  
-pygame.mixer.music.play(-1)
+current_index = 0
+close_button_size = 25
 
-is_sound_played = False
-click_sound_path = "sounds//switch.mp3"  
-click_sound = pygame.mixer.Sound(click_sound_path)
-click_sound.set_volume(0.2)
+server_data = "" 
+room_name = ''
+player_hp = 10
+original_note_data = []
 
 is_solo_button_pressed = False
 is_multi_button_pressed = False
@@ -76,8 +86,6 @@ is_create_button_pressed = False
 is_ok_button_pressed = False
 is_no_button_pressed = False
 current_game_state = GameState.MAIN_MENU
-
-close_button_size = 25
 
 input_box = pygame.Rect(370, 220, 140, 70)
 color_inactive = pygame.Color(black)
@@ -127,11 +135,6 @@ no_button_rect = pygame.Rect(create_multi_menu_rect.right - 380, create_multi_me
 
 start_button_rect = pygame.Rect(solo_play_menu_rect.left + 15, solo_play_menu_rect.centery - main_menu_button_height//2, main_menu_button_width, main_menu_button_height)
 
-server_data = "" 
-room_name = ''
-player_hp = 10
-original_note_data = []
-
 music_data = [
     {"number": 0, "title": "테스트1", "music_detail": "테스트 1과 관련된 내용", "music_list": "test1_note_data", "sound_file": "sounds//test.mp3"},
     {"number": 1, "title": "테스트2", "music_detail": "테스트 2과 관련된 내용", "music_list": "test2_note_data", "sound_file": "sounds//test.mp3"},
@@ -143,34 +146,7 @@ music_data = [
     {"number": 7, "title": "테스트8", "music_detail": "테스트 8과 관련된 내용", "music_list": "test8", "sound_file": "NONE"},
 ]
 
-test1_note_data = [
-        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 1200, "note_speed": 1/10},
-        {"number": 1, "color": "black", "lane": 1, "note_start_delays": 1200, "note_speed": 1/10},
-        {"number": 2, "color": "black", "lane": 0, "note_start_delays": 2200, "note_speed": 1/10},
-        {"number": 3, "color": "black", "lane": 1, "note_start_delays": 2200, "note_speed": 1/10},
-        {"number": 4, "color": "black", "lane": 3, "note_start_delays": 3200, "note_speed": 1/10},
-        {"number": 5, "color": "black", "lane": 1, "note_start_delays": 4200, "note_speed": 1/10},
-        {"number": 6, "color": "black", "lane": 2, "note_start_delays": 4200, "note_speed": 1/10},
-        {"number": 7, "color": "black", "lane": 3, "note_start_delays": 5200, "note_speed": 1/10},
-        {"number": 8, "color": "black", "lane": 1, "note_start_delays": 5200, "note_speed": 1/10},
-        {"number": 9, "color": "black", "lane": 2, "note_start_delays": 6200, "note_speed": 1/10},
-        {"number": 10, "color": "black", "lane": 3, "note_start_delays": 6200, "note_speed": 1/10}
-]
-
-test2_note_data = [
-        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 1200, "note_speed": 1/10},
-        {"number": 1, "color": "black", "lane": 3, "note_start_delays": 1200, "note_speed": 1/10},
-        {"number": 2, "color": "black", "lane": 2, "note_start_delays": 2200, "note_speed": 1/10},
-        {"number": 3, "color": "black", "lane": 3, "note_start_delays": 2200, "note_speed": 1/10},
-        {"number": 4, "color": "black", "lane": 3, "note_start_delays": 3200, "note_speed": 1/10},
-        {"number": 5, "color": "black", "lane": 1, "note_start_delays": 4200, "note_speed": 1/10},
-        {"number": 6, "color": "black", "lane": 2, "note_start_delays": 4200, "note_speed": 1/10},
-        {"number": 7, "color": "black", "lane": 3, "note_start_delays": 4200, "note_speed": 1/10},
-        {"number": 8, "color": "black", "lane": 1, "note_start_delays": 5200, "note_speed": 1/10},
-        {"number": 9, "color": "black", "lane": 2, "note_start_delays": 6200, "note_speed": 1/10},
-        {"number": 10, "color": "black", "lane": 3, "note_start_delays": 6200, "note_speed": 1/10}
-]
-
+#================= 버튼 함수 시작 =================
 def draw_button(text, x, y, width, height, is_pressed):
     button_rect = pygame.Rect(x, y, width, height)
     pygame.draw.rect(screen, button_bg_color, button_rect)
@@ -194,53 +170,22 @@ def create_buttons():
 def reate_multi_menu_buttons():
     draw_button("확인", ok_button_rect.x, ok_button_rect.y, ok_button_rect.width, ok_button_rect.height, is_ok_button_pressed)
     draw_button("닫기", no_button_rect.x, no_button_rect.y, no_button_rect.width, no_button_rect.height, is_no_button_pressed)
+#================= 버튼 함수 끝 =================
 
 
-def create_multi_menu():
-    pygame.draw.rect(screen, create_multi_menu_color, create_multi_menu_rect)
-    pygame.draw.rect(screen, black, create_multi_menu_rect, 4)
+def main_menu():
+    screen.fill(white)
+    screen.blit(image, image_rect)
+    draw_button("솔로 플레이", solo_button_rect.x, solo_button_rect.y, main_menu_button_width, main_menu_button_height, is_solo_button_pressed)
+    draw_button("멀티 플레이", multi_button_rect.x, multi_button_rect.y, main_menu_button_width, main_menu_button_height, is_multi_button_pressed)
 
-    pygame.draw.rect(screen, create_multi_menu_color, create_multi_menu_rect)
-    pygame.draw.rect(screen, black, create_multi_menu_rect, 4)
-
-def draw_multi_background():
-    global server_data
-    pygame.draw.rect(screen, multi_background_color, multi_background_rect)
-    pygame.draw.rect(screen, black, multi_background_rect, 4)
-
-    pygame.draw.rect(screen, list_background_color, list_background_rect)
-    pygame.draw.rect(screen, black, list_background_rect, 4)
-
-    font_small = pygame.font.Font(path, 50)
-    text = font_small.render("방 목록", True, black)
-    text_rect = text.get_rect(center=(multi_background_rect.centerx, multi_background_rect.top + 60))
-    screen.blit(text, text_rect)
-
-def close_button():
-    pygame.draw.line(screen, black, close_button_rect.topleft, close_button_rect.bottomright, 6)
-    pygame.draw.line(screen, black, close_button_rect.bottomleft, close_button_rect.topright, 6)
-
-def multi_input_box():
-    width = max(250, txt_surface.get_width()+10)
-    input_box.w = width
-    screen.blit(txt_surface, (input_box.x+8, input_box.y+10))
-    pygame.draw.rect(screen, color, input_box, 4)
-
-def loading_screen():
-    pygame.draw.rect(screen, loading_screen_color, loading_screen_rect)
-
-    font = pygame.font.Font(path, 40)
-    text_surface = font.render("상대방을 기다리는 중", True, black)
-    text_rect = text_surface.get_rect(center=loading_screen_rect.center)
-    screen.blit(text_surface, text_rect)
-    
 def blit_text_centered(surface, text_surface, rect):
     text_rect = text_surface.get_rect(center=rect.center)
     surface.blit(text_surface, text_rect)
 
 def solo_play_menu():
     pygame.draw.rect(screen, solo_play_menu_color, solo_play_menu_rect)
-    font = pygame.font.Font(path, 50)  
+    font = pygame.font.Font(path2, 50)  
     text_surface = font.render("START", True, black)  
     text_rect = text_surface.get_rect()
     text_rect.midleft = (solo_play_menu_rect.left + 15, solo_play_menu_rect.centery)  
@@ -250,11 +195,11 @@ def solo_play_menu():
 
     radius1 = 210
     pygame.draw.circle(screen, white, circle_center, radius1) 
-    pygame.draw.circle(screen, black, circle_center, radius1, 4) 
+    pygame.draw.circle(screen, black, circle_center, radius1, 6) 
 
     radius2 = 190
     pygame.draw.circle(screen, white, circle_center, radius2) 
-    pygame.draw.circle(screen, black, circle_center, radius2, 4) 
+    pygame.draw.circle(screen, black, circle_center, radius2, 6) 
 
     info_font = pygame.font.Font(path, 35)
     rect_width = 230
@@ -313,6 +258,52 @@ def solo_play_menu():
     blit_text_centered(screen, music_detail_surface, solo_play_muisc_menu_rect)
     screen.blit(text_surface, text_rect)
 
+def draw_multi_background():
+    pygame.draw.rect(screen, multi_background_color, multi_background_rect)
+    pygame.draw.rect(screen, black, multi_background_rect, 4)
+
+    pygame.draw.rect(screen, list_background_color, list_background_rect)
+    pygame.draw.rect(screen, black, list_background_rect, 4)
+
+    font_small = pygame.font.Font(path, 50)
+    text = font_small.render("방 목록", True, black)
+    text_rect = text.get_rect(center=(multi_background_rect.centerx, multi_background_rect.top + 60))
+    screen.blit(text, text_rect)    
+
+def multi_menu():
+    label_font = pygame.font.Font(path, 50)
+    label_text = label_font.render("방 이름", True, black)
+    label_rect = label_text.get_rect(right=input_box.left - 10, centery=input_box.centery)
+    create_multi_menu()
+    screen.blit(label_text, label_rect)
+    multi_input_box()
+    reate_multi_menu_buttons()
+
+def create_multi_menu():
+    pygame.draw.rect(screen, create_multi_menu_color, create_multi_menu_rect)
+    pygame.draw.rect(screen, black, create_multi_menu_rect, 4)
+
+    pygame.draw.rect(screen, create_multi_menu_color, create_multi_menu_rect)
+    pygame.draw.rect(screen, black, create_multi_menu_rect, 4)
+
+def multi_input_box():
+    width = max(250, txt_surface.get_width()+10)
+    input_box.w = width
+    screen.blit(txt_surface, (input_box.x+8, input_box.y+10))
+    pygame.draw.rect(screen, color, input_box, 4)
+
+def close_button():
+    pygame.draw.line(screen, black, close_button_rect.topleft, close_button_rect.bottomright, 6)
+    pygame.draw.line(screen, black, close_button_rect.bottomleft, close_button_rect.topright, 6)
+
+def loading_screen():
+    pygame.draw.rect(screen, loading_screen_color, loading_screen_rect)
+    font = pygame.font.Font(path, 40)
+    text_surface = font.render("상대방을 기다리는 중", True, black)
+    text_rect = text_surface.get_rect(center=loading_screen_rect.center)
+    screen.blit(text_surface, text_rect)
+    
+#================= 게임 플레이 시작 ================= 
 def run_game():
     pygame.init()
     screen_width = 1000
@@ -321,17 +312,15 @@ def run_game():
     pygame.display.set_caption("test game")
     song_file_path = "sounds//test.mp3"
 
-
     global current_game_state
 
-    white = (255, 255, 255)
-    black = (0, 0, 0)
-    red = (255, 0, 0)
     button_font_size = 50
     button_font = pygame.font.Font(path, button_font_size)
+
     hp_label_font = pygame.font.Font(None, 40)
     hp_label_text = hp_label_font.render("MY.HP", True, black)
     hp_label_rect = hp_label_text.get_rect(right=screen_width-240, top=180)
+
     comb_font = pygame.font.Font(path, 40)
     comb_number_font_size = 80
     comb_number_font = pygame.font.Font(path, comb_number_font_size)
@@ -383,7 +372,6 @@ def run_game():
 
     retry_button_rect = pygame.Rect(screen_width-22, screen_height // 2 + 50, 200, 50)
     menu_button_rect = pygame.Rect(screen_width - 250, screen_height // 2 + 150, 200, 50)
-
 
     button_spacing = 60
     half_spacing = button_spacing / 2
@@ -491,7 +479,6 @@ def run_game():
         vertical_line_start = (vertical_line_start_x, score_rect.bottom + 90)   
         vertical_line_end = (vertical_line_start_x, retry_button_rect.top + 50)
         pygame.draw.line(screen, black, vertical_line_start, vertical_line_end, 8)
-  
 
         screen.blit(score_text, score_rect)
         screen.blit(comb_text, comb_rect)
@@ -514,7 +501,6 @@ def run_game():
         vertical_line_start = ((line_start[0] + line_end[0]) // 2, text_rect.bottom + 20)
         vertical_line_end = ((line_start[0] + line_end[0]) // 2, retry_button_rect.top + 60)
         pygame.draw.line(screen, black, vertical_line_start, vertical_line_end, 8)
-
 
         screen.blit(game_over_text, text_rect)
         stop_song()
@@ -658,12 +644,11 @@ def run_game():
         elif game_state == "win":
             draw_win_screen()
             pygame.display.flip()
-        
 
-current_index = 0
-
+#================= 게임 플레이 끝 =================
 
 
+#================= 메인 루트 =================
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -721,17 +706,16 @@ while True:
             if start_button_rect.collidepoint(event.pos):
                 music_list_value = music_data[(current_index + 2) % len(music_data)]["music_list"]
                 song_file_path = music_data[(current_index + 2) % len(music_data)]["sound_file"]
-
-                if music_list_value == "test1_note_data":
-                    original_note_data = test1_note_data.copy()
-                elif music_list_value == "test2_note_data":
-                    original_note_data = test2_note_data.copy()
-
-                if len(original_note_data) == 0:
+                file_name = "note_data/" + music_list_value + ".json"
+                try:
+                    with open(file_name, "r") as file:
+                        loaded_data = json.load(file)
+                    original_note_data = loaded_data.copy()
+                    if len(original_note_data) != 0:
+                        run_game()
+                except FileNotFoundError:
                     pass
-                elif len(original_note_data) != 0:
-                    run_game()
-            
+
         if event.type == pygame.KEYDOWN:
                 if current_game_state == GameState.CREATE:
                     if event.key == pygame.K_RETURN:
@@ -754,14 +738,8 @@ while True:
                     if current_index < 0: 
                         current_index = 7
 
-    screen.fill(white)
-
-    screen.blit(image, image_rect)
-    draw_button("솔로 플레이", solo_button_rect.x, solo_button_rect.y, main_menu_button_width, main_menu_button_height, is_solo_button_pressed)
-    draw_button("멀티 플레이", multi_button_rect.x, multi_button_rect.y, main_menu_button_width, main_menu_button_height, is_multi_button_pressed)
-
     if current_game_state == GameState.MAIN_MENU:
-        pass
+        main_menu()
 
     elif current_game_state == GameState.SOLO_PLAY:
         solo_play_menu()
@@ -772,13 +750,7 @@ while True:
         close_button()
 
     elif current_game_state == GameState.CREATE:
-        label_font = pygame.font.Font(path, 50)
-        label_text = label_font.render("방 이름", True, black)
-        label_rect = label_text.get_rect(right=input_box.left - 10, centery=input_box.centery)
-        create_multi_menu()
-        screen.blit(label_text, label_rect)
-        multi_input_box()
-        reate_multi_menu_buttons()
+        multi_menu()
 
     elif current_game_state == GameState.LOADING:
         loading_screen()
