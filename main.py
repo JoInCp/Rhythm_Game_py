@@ -146,6 +146,8 @@ music_data = [
     {"number": 7, "title": "테스트8", "music_detail": "테스트 8과 관련된 내용", "music_list": "test8", "sound_file": "NONE"},
 ]
 
+music_result = {} 
+
 #================= 버튼 함수 시작 =================
 def draw_button(text, x, y, width, height, is_pressed):
     button_rect = pygame.Rect(x, y, width, height)
@@ -217,8 +219,6 @@ def solo_play_menu():
     rect_bottom = pygame.Rect(text_rect.centerx - rect_width/2 + 30, text_rect.centery + radius1+20, rect_width, rect_height)
     
     pygame.draw.rect(screen, solo_play_muisc_menu_color, solo_play_muisc_menu_rect)
-    pygame.draw.rect(screen, black, solo_play_muisc_menu_rect, 4)
-
     padding = 15
     right_box_rect = pygame.Rect(rect_right.left - padding, rect_right.top - padding, 
                                 rect_right.width + 2*padding, rect_right.height + 2*padding)
@@ -255,7 +255,29 @@ def solo_play_menu():
 
     music_detail_font = pygame.font.Font(path, 25)
     music_detail_surface = music_detail_font.render(music_data[(current_index + 2) % len(music_data)]["music_detail"], True, black)
-    blit_text_centered(screen, music_detail_surface, solo_play_muisc_menu_rect)
+    
+    music_detail_rect = music_detail_surface.get_rect(topleft=(solo_play_muisc_menu_rect.left + 15, solo_play_muisc_menu_rect.top + 10))
+    screen.blit(music_detail_surface, music_detail_rect.topleft)
+
+    # 결과를 출력
+    result_font = pygame.font.Font(path, 25)
+    song_title = music_data[(current_index + 2) % len(music_data)]["title"]
+    
+    if song_title in music_result:
+        # 최대 콤보 출력
+        combo_text = "Max Combo: {}".format(music_result[song_title]["combo"])
+        combo_surface = result_font.render(combo_text, True, black)
+        combo_rect = combo_surface.get_rect(topleft=(solo_play_muisc_menu_rect.left + 15, music_detail_rect.bottom + 10))
+        screen.blit(combo_surface, combo_rect.topleft)
+
+        # 점수 출력
+        score_text = "Score: {}".format(music_result[song_title]["score"])
+        score_surface = result_font.render(score_text, True, black)
+        score_rect = score_surface.get_rect(topleft=(solo_play_muisc_menu_rect.left + 15, combo_rect.bottom + 10))
+        screen.blit(score_surface, score_rect.topleft)
+
+    pygame.draw.rect(screen, black, solo_play_muisc_menu_rect, 4) 
+
     screen.blit(text_surface, text_rect)
 
 def draw_multi_background():
@@ -319,15 +341,15 @@ def run_game():
 
     hp_label_font = pygame.font.Font(None, 40)
     hp_label_text = hp_label_font.render("MY.HP", True, black)
-    hp_label_rect = hp_label_text.get_rect(right=screen_width-240, top=180)
+    hp_label_rect = hp_label_text.get_rect(right=screen_width-270, top=180)
 
-    comb_font = pygame.font.Font(path, 40)
-    comb_number_font_size = 80
-    comb_number_font = pygame.font.Font(path, comb_number_font_size)
+    combo_font = pygame.font.Font(path, 40)
+    combo_number_font_size = 80
+    combo_number_font = pygame.font.Font(path, combo_number_font_size)
 
     score = 0
-    comb = 0
-    max_comb = 0
+    combo = 0
+    max_combo = 0
     game_state = "playing"
     running = True
     global player_hp 
@@ -341,10 +363,10 @@ def run_game():
     note_width = 80
     semicolon_key = 59
 
-    hp_bar_x = screen_width - 320 
+    hp_bar_x = screen_width - 350
     hp_bar_y = hp_label_rect.bottom 
-    hp_bar_width = 240
-    hp_bar_height = 60
+    hp_bar_width = 260
+    hp_bar_height = 70
     hp_segment_width = hp_bar_width // 10 
 
     button_x_centers = [73.75 + 45, 184.75 + 45, 296 + 45, 407 + 45]
@@ -353,9 +375,9 @@ def run_game():
     check_line = rect_y + rect_height - 150
     hit_line = rect_y + rect_height - 240
 
-    score_box_width = 240
+    score_box_width = 260
     score_box_height = 70
-    score_box_x = screen_width - 320
+    score_box_x = screen_width - 350
     score_box_y = 80
 
     button_data = [
@@ -406,7 +428,7 @@ def run_game():
     clock = pygame.time.Clock()
 
     def move_notes():
-        global comb, y_position, bottom_of_screen, player_hp 
+        global combo, y_position, bottom_of_screen, player_hp 
         bottom_of_screen = rect_y + rect_height  
         current_time = pygame.time.get_ticks()
         notes_to_remove = []
@@ -420,7 +442,7 @@ def run_game():
                     if not note["hit"]: 
                         note["hit"] = True 
                         player_hp -= 1 
-                        comb = 0
+                        combo = 0
                         if note not in notes_to_remove:
                             notes_to_remove.append(note)
 
@@ -464,9 +486,9 @@ def run_game():
         score_text = score_font.render(f"Score: {score}", True, black)
         score_rect = score_text.get_rect(center=(screen_width // 2, 300))
 
-        comb_font = pygame.font.Font(path, 70)
-        comb_text = comb_font.render(f"Max Combo: {max_comb}", True, black)
-        comb_rect = comb_text.get_rect(center=(screen_width // 2, score_rect.bottom + 50))
+        combo_font = pygame.font.Font(path, 70)
+        combo_text = combo_font.render(f"Max Combo: {max_combo}", True, black)
+        combo_rect = combo_text.get_rect(center=(screen_width // 2, score_rect.bottom + 50))
 
         draw_retry_button()
         draw_menu_button()
@@ -481,7 +503,7 @@ def run_game():
         pygame.draw.line(screen, black, vertical_line_start, vertical_line_end, 8)
 
         screen.blit(score_text, score_rect)
-        screen.blit(comb_text, comb_rect)
+        screen.blit(combo_text, combo_rect)
 
         stop_song()
     
@@ -504,7 +526,29 @@ def run_game():
 
         screen.blit(game_over_text, text_rect)
         stop_song()
-        
+
+    def play_game_combo_and_score():
+        pygame.draw.rect(screen, white, (score_box_x, score_box_y, score_box_width, score_box_height))
+        pygame.draw.rect(screen, black, (score_box_x, score_box_y, score_box_width, score_box_height), 8)
+
+        score_label_font = pygame.font.Font(path, 30)
+        score_label_text = score_label_font.render("Score", True, black)
+        score_label_rect = score_label_text.get_rect(midbottom=(score_box_x+45, score_box_y))
+        screen.blit(score_label_text, score_label_rect)
+        score_font = pygame.font.Font(path, 50)
+        score_text = score_font.render(f"{score}", True, black)
+        score_rect = score_text.get_rect(midright=(score_box_x + score_box_width - 20, score_box_y + (score_box_height // 2)))
+        screen.blit(score_text, score_rect)
+
+        combo_text = combo_font.render("COMBO", True, black)   
+        combo_rect = combo_text.get_rect(right=screen_width-140, top=450)
+        pygame.draw.circle(screen, black, combo_rect.center, combo_rect.width-60, 8)
+        combo_text_rect = combo_text.get_rect(center=(combo_rect.centerx, combo_rect.centery - 130))
+        screen.blit(combo_text, combo_text_rect)
+        combo_number_text = combo_number_font.render(str(combo), True, black)
+        combo_number_rect = combo_number_text.get_rect(center=combo_rect.center)
+        screen.blit(combo_number_text, combo_number_rect)
+
     while running:
         screen.fill(white) 
         draw_hp_bar()
@@ -529,13 +573,13 @@ def run_game():
                                 hit_note = True
                                 break
                         if not hit_note:
-                            comb = 0
+                            combo = 0
 
             if game_state in ["game_over", "win"]:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
                     if retry_button_rect.collidepoint(mouse_pos):
-                        comb = 0
+                        combo = 0
                         player_hp = 10
                         score = 0
                         game_state = "playing"
@@ -550,6 +594,7 @@ def run_game():
                             note["number"] = initial_position_outside_screen
                             note["hit"] = False
                     if menu_button_rect.collidepoint(event.pos):
+                        player_hp = 10
                         running = False
                         current_game_state = GameState.SOLO_PLAY
 
@@ -564,6 +609,14 @@ def run_game():
             
             elif player_hp <=0:
                 game_state = "game_over"
+                
+            if game_state == "win" or game_state == "game_over":
+                song_title = music_data[(current_index + 2) % len(music_data)]["title"]
+                if song_title not in music_result:
+                    music_result[song_title] = {}
+                music_result[song_title]["score"] = max(score, music_result[song_title].get("score", 0))
+                music_result[song_title]["combo"] = max(max_combo, music_result[song_title].get("combo", 0))
+
 
             if pygame.mixer.music.get_busy() == 0:
                 song_thread = threading.Thread(target=play_song_thread)
@@ -592,16 +645,16 @@ def run_game():
                             if y_position <= line_y and y_position + note_height >= line_y:
                                 if lane == button_data.index(button):
                                     score += 10
-                                    comb += 1
-                                    if comb > max_comb:
-                                        max_comb = comb
-                                    if comb % 10 == 0 and comb != 0:
+                                    combo += 1
+                                    if combo > max_combo:
+                                        max_combo = combo
+                                    if combo % 10 == 0 and combo != 0:
                                         score += 5
                                     note_data.remove(note)
                                     break
                             elif y_position > rect_y + rect_height:
                                 if lane == button_data.index(button):
-                                    comb = 0
+                                    combo = 0
             draw_notes()
 
             for button in button_data:
@@ -614,25 +667,7 @@ def run_game():
                 text_rect = text.get_rect(center=(button["x"] + button["width"] // 2, button["y"] + button["height"] // 2))
                 screen.blit(text, text_rect)
 
-            pygame.draw.rect(screen, white, (score_box_x, score_box_y, score_box_width, score_box_height))
-            pygame.draw.rect(screen, black, (score_box_x, score_box_y, score_box_width, score_box_height), 8)
-            score_label_font = pygame.font.Font(path, 30)
-            score_label_text = score_label_font.render("Score", True, black)
-            score_label_rect = score_label_text.get_rect(midbottom=(score_box_x+45, score_box_y))
-            screen.blit(score_label_text, score_label_rect)
-            score_font = pygame.font.Font(path, 50)
-            score_text = score_font.render(f"{score}", True, black)
-            score_rect = score_text.get_rect(midright=(score_box_x + score_box_width - 20, score_box_y + (score_box_height // 2)))
-            screen.blit(score_text, score_rect)
-
-            comb_text = comb_font.render("COMB", True, black)   
-            comb_rect = comb_text.get_rect(right=screen_width-140, top=450)
-            pygame.draw.circle(screen, black, comb_rect.center, comb_rect.width-30, 8)
-            comb_text_rect = comb_text.get_rect(center=(comb_rect.centerx, comb_rect.centery - 130))
-            screen.blit(comb_text, comb_text_rect)
-            comb_number_text = comb_number_font.render(str(comb), True, black)
-            comb_number_rect = comb_number_text.get_rect(center=comb_rect.center)
-            screen.blit(comb_number_text, comb_number_rect)
+            play_game_combo_and_score()
             
             pygame.display.flip()
             clock.tick(60)
