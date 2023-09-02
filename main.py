@@ -25,29 +25,40 @@ screen_width = 1000
 screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
 
+
+#========== 메인 화면 사진 ==========
 image_path = "images//main.jpg"  
 image = pygame.image.load(image_path)
 image_rect = image.get_rect()
 image_rect.center = (screen_width // 2.5, screen_height // 2)
 
-music_path = "sounds//background_music.mp3"  
-pygame.mixer.music.load(music_path)
+
+#========== 메인화면 배경음 ==========
+main_menu_music_path = "sounds//background_music.mp3"  
+pygame.mixer.music.load(main_menu_music_path)
 pygame.mixer.music.set_volume(0.1)  
 pygame.mixer.music.play(-1)
 
+#========== 버튼 클릭 사운드 ==========
 is_sound_played = False
 click_sound_path = "sounds//switch.mp3"  
 click_sound = pygame.mixer.Sound(click_sound_path)
 click_sound.set_volume(0.2)
 
+
+#========== 폰트 ==========
 path = "font/KBO Dia Gothic_medium.ttf"
 path2 = "font/MBC 1961 M.ttf"
 data_file = "users.json"
 
+
+#========== 색상 ==========
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
 
+
+#========== 화면 사이즈 및 색 ==========
 multi_background_color = white
 multi_background_size = (800, 600) 
 
@@ -69,15 +80,16 @@ solo_play_muisc_menu_size = (400, 800)
 music_choice_color = white
 music_choice_size = (240, 100)
 
+login_signup_menu_color = white
+login_signup_menu_size = (800, 600)
+
 main_menu_button_width = 250
 main_menu_button_height = 100
 button_bg_color = white
 button_border_color = black
 main_menu_button_font_size = 46
-button_font = pygame.font.Font(path, main_menu_button_font_size)
 
-login_signup_menu_color = white
-login_signup_menu_size = (800, 600)
+button_font = pygame.font.Font(path, main_menu_button_font_size)
 
 login_signup_menu_center_x = screen_width // 2
 login_signup_menu_center_y = screen_height // 2
@@ -85,11 +97,22 @@ login_signup_menu_center_y = screen_height // 2
 current_index = 0
 close_button_size = 25
 
-server_data = "" 
-room_name = ''
 player_hp = 10
-original_note_data = []
 
+
+#========== 로그인 & 회원가입 ==========
+total_width = 2 * 100 + 10
+start_x = login_signup_menu_center_x - total_width // 2
+signup_close_button_center_x = screen_width // 2 + 100 // 2 + 10 // 2
+signup_close_button_center_y = screen_height // 2 + 130 - 30 // 2
+signup_confirm_button_center_x = signup_close_button_center_x - 100 - 10 
+
+login_close_button_center_x = screen_width // 2 + 100 // 2 + 10 // 2
+login_close_button_center_y = screen_height // 2 + 90 - 30 // 2
+login_confirm_button_center_x = login_close_button_center_x - 100 - 10 
+
+
+#========== 체크 ==========
 is_solo_button_pressed = False
 is_multi_button_pressed = False
 is_create_button_pressed = False
@@ -101,6 +124,8 @@ login_successful = False
 login_failure_warning = False
 current_game_state = GameState.MAIN_MENU
 
+
+#========== 방만들기 텍스트입력 ==========
 input_box = pygame.Rect(370, 220, 140, 70)
 color_inactive = pygame.Color(black)
 color_active = pygame.Color(black)
@@ -110,6 +135,8 @@ text = ''
 font_input = pygame.font.Font(path, 45)
 txt_surface = font_input.render(text, True, color)
 
+
+#========== 위치 ==========
 close_button_rect = pygame.Rect((screen_width + multi_background_size[0]) // 2 - close_button_size - 10,
                                 (screen_height - multi_background_size[1]) // 2 + 10,
                                 close_button_size, close_button_size)
@@ -157,35 +184,17 @@ start_button_rect = pygame.Rect(solo_play_menu_rect.left + 15, solo_play_menu_re
 signup_button = pygame.Rect(login_signup_menu_center_x + 25, login_signup_menu_center_y - 30, 100, 60)
 login_button = pygame.Rect(login_signup_menu_center_x - 125, login_signup_menu_center_y - 30, 100, 60)
 
-
-total_width = 2 * 100 + 10
-
-start_x = login_signup_menu_center_x - total_width // 2
-
-
-signup_close_button_center_x = screen_width // 2 + 100 // 2 + 10 // 2
-signup_close_button_center_y = screen_height // 2 + 130 - 30 // 2
-signup_close_button = pygame.Rect(signup_close_button_center_x, signup_close_button_center_y, 100, 30)
-
-signup_confirm_button_center_x = signup_close_button_center_x - 100 - 10 
-
 signup_confirm_button = pygame.Rect(start_x, signup_close_button_center_y, 100, 30)
 signup_close_button = pygame.Rect(start_x + 100 + 10, signup_close_button_center_y, 100, 30)
-
-login_close_button_center_x = screen_width // 2 + 100 // 2 + 10 // 2
-login_close_button_center_y = screen_height // 2 + 90 - 30 // 2
-login_close_button = pygame.Rect(login_close_button_center_x, login_close_button_center_y, 100, 30)
-
-login_confirm_button_center_x = login_close_button_center_x - 100 - 10 
 
 login_confirm_button = pygame.Rect(start_x, login_close_button_center_y, 100, 30)
 login_close_button = pygame.Rect(start_x + 100 + 10, login_close_button_center_y, 100, 30)
 
 
-
+#========== 노래 정보 ==========
 music_data = [
     {"number": 0, "title": "테스트1", "music_detail": "테스트 1과 관련된 내용", "music_list": "test1_note_data", "sound_file": "sounds//test.mp3"},
-    {"number": 1, "title": "테스트2", "music_detail": "테스트 2과 관련된 내용", "music_list": "test2_note_data", "sound_file": "sounds//test.mp3"},
+    {"number": 1, "title": "테스트2", "music_detail": "테스트 2과 관련된 내용", "music_list": "test2_note_data", "sound_file": "sounds//background_music.mp3"},
     {"number": 2, "title": "테스트3", "music_detail": "테스트 3과 관련된 내용", "music_list": "test3", "sound_file": "NONE"},
     {"number": 3, "title": "테스트4", "music_detail": "테스트 4과 관련된 내용", "music_list": "test4", "sound_file": "NONE"},
     {"number": 4, "title": "테스트5", "music_detail": "테스트 5과 관련된 내용", "music_list": "test5", "sound_file": "NONE"},
@@ -194,9 +203,12 @@ music_data = [
     {"number": 7, "title": "테스트8", "music_detail": "테스트 8과 관련된 내용", "music_list": "test8", "sound_file": "NONE"},
 ]
 
+original_note_data = []
+
 music_result = {} 
 
 
+#========== 로그인 & 회원가입 입력 ==========
 class InputBox:
     def __init__(self, x, y, w, h, text='', password_mode=False):
         self.rect = pygame.Rect(x, y, w, h)
@@ -236,11 +248,10 @@ login_user_input = InputBox(login_signup_menu_center_x - 100, login_signup_menu_
 login_pwd_input = InputBox(login_signup_menu_center_x - 100, login_signup_menu_center_y - 10, 200, 30, password_mode=True)
 
 
-#================= 버튼 함수 시작 =================
-
+#========== 로그인 & 회원가입 버튼 ==========
 def login_signup_draw_button(screen, button_rect, text, font_path, font_size=20):
     pygame.draw.rect(screen, white, button_rect)
-    pygame.draw.rect(screen, black, button_rect, 2)
+    pygame.draw.rect(screen, black, button_rect, 4)
     
     font = pygame.font.Font(font_path, font_size)
     rendered_text = font.render(text, True, black)
@@ -248,7 +259,6 @@ def login_signup_draw_button(screen, button_rect, text, font_path, font_size=20)
     text_x = button_rect.x + (button_rect.width - rendered_text.get_width()) // 2
     text_y = button_rect.y + (button_rect.height - rendered_text.get_height()) // 2
     screen.blit(rendered_text, (text_x, text_y))
-
 
 def draw_button(text, x, y, width, height, is_pressed):
     button_rect = pygame.Rect(x, y, width, height)
@@ -266,6 +276,8 @@ def draw_button2(text, x, y, width, height, is_pressed):
     button_text_rect = button_text.get_rect(center=button_rect.center)
     screen.blit(button_text, button_text_rect)
 
+
+#========== 멀티플레이 방 관련 버튼 ==========
 def create_buttons():
     draw_button2("참가하기", join_button_rect.x, join_button_rect.y, join_button_rect.width, join_button_rect.height, False)
     draw_button2("방 만들기", create_button_rect.x, create_button_rect.y, create_button_rect.width, create_button_rect.height, is_create_button_pressed)
@@ -273,10 +285,9 @@ def create_buttons():
 def reate_multi_menu_buttons():
     draw_button("확인", ok_button_rect.x, ok_button_rect.y, ok_button_rect.width, ok_button_rect.height, is_ok_button_pressed)
     draw_button("닫기", no_button_rect.x, no_button_rect.y, no_button_rect.width, no_button_rect.height, is_no_button_pressed)
-#================= 버튼 함수 끝 =================
 
 
-
+#========== 로그인 & 회원가입 파일 입출력 ==========
 def user_exists(username):
     try:
         with open(data_file, 'r') as f:
@@ -304,6 +315,8 @@ def save_user(username, password):
     with open(data_file, 'w') as f:
         json.dump(users, f)
 
+
+#========== 회원가입 화면 ==========
 def signup():
     pygame.draw.rect(screen, login_signup_menu_color, login_signup_menu_rect)
     pygame.draw.rect(screen, black, login_signup_menu_rect, 4)
@@ -341,6 +354,7 @@ def signup():
     screen.blit(close_text, (signup_close_button.x + (signup_close_button.width - close_text.get_width()) // 2, signup_close_button.y + (signup_close_button.height - close_text.get_height()) // 2))
 
 
+#========== 로그인 화면 ==========
 def login():
     pygame.draw.rect(screen, login_signup_menu_color, login_signup_menu_rect)
     pygame.draw.rect(screen, black, login_signup_menu_rect, 4)
@@ -371,6 +385,7 @@ def login():
     screen.blit(close_text, (login_close_button.x + (login_close_button.width - close_text.get_width()) // 2, login_close_button.y + (login_close_button.height - close_text.get_height()) // 2))
 
 
+#========== 로그인 & 화원가입 화면 ==========
 def login_signup_menu():
     screen.fill(login_signup_menu_color)
     font = pygame.font.Font(path, 20)
@@ -382,16 +397,21 @@ def login_signup_menu():
     login_signup_draw_button(screen, login_button, "로그인", path)
 
 
+#========== 메인 화면 ==========
 def main_menu():
     screen.fill(white)
     screen.blit(image, image_rect)
     draw_button("솔로 플레이", solo_button_rect.x, solo_button_rect.y, main_menu_button_width, main_menu_button_height, is_solo_button_pressed)
     draw_button("멀티 플레이", multi_button_rect.x, multi_button_rect.y, main_menu_button_width, main_menu_button_height, is_multi_button_pressed)
 
+
+#========== 솔로플레이 텍스트 위치 ==========
 def blit_text_centered(surface, text_surface, rect):
     text_rect = text_surface.get_rect(center=rect.center)
     surface.blit(text_surface, text_rect)
 
+
+#==========솔로 플레이 화면 ==========
 def solo_play_menu():
     pygame.draw.rect(screen, solo_play_menu_color, solo_play_menu_rect)
     font = pygame.font.Font(path2, 50)  
@@ -466,18 +486,15 @@ def solo_play_menu():
     music_detail_rect = music_detail_surface.get_rect(topleft=(solo_play_muisc_menu_rect.left + 15, solo_play_muisc_menu_rect.top + 10))
     screen.blit(music_detail_surface, music_detail_rect.topleft)
 
-    # 결과를 출력
     result_font = pygame.font.Font(path, 25)
     song_title = music_data[(current_index + 2) % len(music_data)]["title"]
     
     if song_title in music_result:
-        # 최대 콤보 출력
         combo_text = "Max Combo: {}".format(music_result[song_title]["combo"])
         combo_surface = result_font.render(combo_text, True, black)
         combo_rect = combo_surface.get_rect(topleft=(solo_play_muisc_menu_rect.left + 15, music_detail_rect.bottom + 10))
         screen.blit(combo_surface, combo_rect.topleft)
 
-        # 점수 출력
         score_text = "Score: {}".format(music_result[song_title]["score"])
         score_surface = result_font.render(score_text, True, black)
         score_rect = score_surface.get_rect(topleft=(solo_play_muisc_menu_rect.left + 15, combo_rect.bottom + 10))
@@ -487,6 +504,8 @@ def solo_play_menu():
 
     screen.blit(text_surface, text_rect)
 
+
+#========== 멀티 플레이 화면 ==========
 def draw_multi_background():
     pygame.draw.rect(screen, multi_background_color, multi_background_rect)
     pygame.draw.rect(screen, black, multi_background_rect, 4)
@@ -499,6 +518,8 @@ def draw_multi_background():
     text_rect = text.get_rect(center=(multi_background_rect.centerx, multi_background_rect.top + 60))
     screen.blit(text, text_rect)    
 
+
+#========== 멀티 플레이 방만들기 ==========
 def multi_menu():
     label_font = pygame.font.Font(path, 50)
     label_text = label_font.render("방 이름", True, black)
@@ -525,6 +546,8 @@ def close_button():
     pygame.draw.line(screen, black, close_button_rect.topleft, close_button_rect.bottomright, 6)
     pygame.draw.line(screen, black, close_button_rect.bottomleft, close_button_rect.topright, 6)
 
+
+#========== 멀티 플레이 로딩 화면 ==========
 def loading_screen():
     pygame.draw.rect(screen, loading_screen_color, loading_screen_rect)
     font = pygame.font.Font(path, 40)
@@ -532,15 +555,9 @@ def loading_screen():
     text_rect = text_surface.get_rect(center=loading_screen_rect.center)
     screen.blit(text_surface, text_rect)
     
-#================= 게임 플레이 시작 ================= 
-def run_game():
-    pygame.init()
-    screen_width = 1000
-    screen_height = 800
-    screen = pygame.display.set_mode((screen_width, screen_height))
-    pygame.display.set_caption("test game")
-    song_file_path = "sounds//test.mp3"
 
+#========== 솔로 플레이 게임 ==========
+def solo_run_game():
     global current_game_state
 
     button_font_size = 50
@@ -887,14 +904,11 @@ def run_game():
             draw_win_screen()
             pygame.display.flip()
 
-#================= 게임 플레이 끝 =================
 
-
-#================= 메인 루트 =================
+#========== 메인 루트 ==========
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            server_thread_running = False 
             pygame.quit()
             sys.exit()
 
@@ -937,6 +951,10 @@ while True:
 
                 elif login_button.collidepoint(event.pos):
                     current_game_state = GameState.LOGIN
+
+                if close_button_rect.collidepoint(event.pos):
+                    current_game_state = GameState.MAIN_MENU
+                    continue  
             
             elif current_game_state == GameState.SIGNUP and signup_close_button.collidepoint(event.pos):
                 current_game_state = GameState.LOGIN_SIGNUP
@@ -1003,7 +1021,7 @@ while True:
                         loaded_data = json.load(file)
                     original_note_data = loaded_data.copy()
                     if len(original_note_data) != 0:
-                        run_game()
+                        solo_run_game()
                 except FileNotFoundError:
                     pass
 
@@ -1030,9 +1048,12 @@ while True:
                         current_index = 7
 
     if current_game_state == GameState.MAIN_MENU:
+        pygame.mixer.music.load(main_menu_music_path) 
+        pygame.mixer.music.play(-1)
         main_menu()
 
     elif current_game_state == GameState.SOLO_PLAY:
+        pygame.mixer.music.stop()
         solo_play_menu()
 
     elif current_game_state == GameState.MULTI_PLAY:
@@ -1048,6 +1069,7 @@ while True:
 
     elif current_game_state == GameState.LOGIN_SIGNUP:
         login_signup_menu()
+        close_button()
 
     elif current_game_state == GameState.SIGNUP:
         signup()
