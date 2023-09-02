@@ -9,6 +9,10 @@ from enum import Enum, auto
 
 pygame.init()
 
+screen_width = 1000
+screen_height = 800
+screen = pygame.display.set_mode((screen_width, screen_height))
+
 class GameState(Enum):
     MAIN_MENU = auto()
     SOLO_PLAY = auto()
@@ -20,10 +24,7 @@ class GameState(Enum):
     SIGNUP = auto()
     LOGIN = auto()
     LOGIN_SIGNUP = auto()
-
-screen_width = 1000
-screen_height = 800
-screen = pygame.display.set_mode((screen_width, screen_height))
+    ESC = auto()
 
 
 #========== 메인 화면 사진 ==========
@@ -83,6 +84,9 @@ music_choice_size = (240, 100)
 login_signup_menu_color = white
 login_signup_menu_size = (800, 600)
 
+esc_menu_color = white
+esc_menu_size = (1000, 800)
+
 main_menu_button_width = 250
 main_menu_button_height = 100
 button_bg_color = white
@@ -118,10 +122,13 @@ is_multi_button_pressed = False
 is_create_button_pressed = False
 is_ok_button_pressed = False
 is_no_button_pressed = False
+game_over_button_pressed = False
+menu_button_pressed = False
 password_mismatch_warning = False
 user_exists_warning = False
 login_successful = False
 login_failure_warning = False
+prev_game_state = None 
 current_game_state = GameState.MAIN_MENU
 
 
@@ -148,6 +155,10 @@ list_background_rect = pygame.Rect((screen_width - list_background_size[0]) // 2
 multi_background_rect = pygame.Rect((screen_width - multi_background_size[0]) // 2,
                                         (screen_height - multi_background_size[1]) // 2,
                                         multi_background_size[0], multi_background_size[1])
+
+esc_menu_rect = pygame.Rect((screen_width - esc_menu_size[0]) // 2,
+                                        (screen_height - esc_menu_size[1]) // 2,
+                                        esc_menu_size[0], esc_menu_size[1])
 
 create_multi_menu_rect = pygame.Rect((screen_width - create_multi_menu_size[0]) // 2,
                                     (screen_height - create_multi_menu_size[1]) // 2,
@@ -190,6 +201,8 @@ signup_close_button = pygame.Rect(start_x + 100 + 10, signup_close_button_center
 login_confirm_button = pygame.Rect(start_x, login_close_button_center_y, 100, 30)
 login_close_button = pygame.Rect(start_x + 100 + 10, login_close_button_center_y, 100, 30)
 
+menu_button_rect = pygame.Rect((screen_width - 150) // 2, (screen_height - esc_menu_size[1]) + 330, 180, 60)
+exit_button_rect = pygame.Rect((screen_width - 150) // 2, (screen_height - esc_menu_size[1]) + 400, 180, 60)
 
 #========== 노래 정보 ==========
 music_data = [
@@ -405,6 +418,23 @@ def main_menu():
     draw_button("멀티 플레이", multi_button_rect.x, multi_button_rect.y, main_menu_button_width, main_menu_button_height, is_multi_button_pressed)
 
 
+#========== esc 화면 ==========
+def esc_menu():
+    pygame.draw.rect(screen, esc_menu_color, esc_menu_rect)
+    pygame.draw.rect(screen, white, menu_button_rect)  
+    pygame.draw.rect(screen, black, menu_button_rect, 8)  
+    font = pygame.font.Font(path, 36)
+    text = font.render("메뉴 가기", True, black)
+    text_rect = text.get_rect(center=menu_button_rect.center)
+    screen.blit(text, text_rect)
+
+    pygame.draw.rect(screen, white, exit_button_rect) 
+    pygame.draw.rect(screen, black, exit_button_rect, 8)  
+    text = font.render("게임 종료", True, black)
+    text_rect = text.get_rect(center=exit_button_rect.center)
+    screen.blit(text, text_rect)
+
+    
 #========== 솔로플레이 텍스트 위치 ==========
 def blit_text_centered(surface, text_surface, rect):
     text_rect = text_surface.get_rect(center=rect.center)
@@ -944,7 +974,14 @@ while True:
                     if not is_sound_played:
                         click_sound.play()
                         is_sound_played = True
-            
+            elif current_game_state == GameState.ESC:
+                if current_game_state != GameState.MAIN_MENU:
+                    if menu_button_rect.collidepoint(event.pos):
+                        current_game_state = GameState.MAIN_MENU
+                if exit_button_rect.collidepoint(event.pos):
+                    pygame.quit()
+                    sys.exit()
+
             elif current_game_state == GameState.LOGIN_SIGNUP:
                 if signup_button.collidepoint(event.pos):
                     current_game_state = GameState.SIGNUP
@@ -1026,17 +1063,18 @@ while True:
                     pass
 
         if event.type == pygame.KEYDOWN:
-                if current_game_state == GameState.CREATE:
-                    if event.key == pygame.K_RETURN:
-                        current_game_state = GameState.LOADING
+            if current_game_state == GameState.CREATE:
+                if event.key == pygame.K_RETURN:
+                    current_game_state = GameState.LOADING
 
-                    elif event.key == pygame.K_BACKSPACE:
-                        text = text[:-1]
-                        txt_surface = font_input.render(text, True, black)  
-                    else:
-                        text += event.unicode
-                        txt_surface = font_input.render(text, True, black)
-            
+                elif event.key == pygame.K_BACKSPACE:
+                    text = text[:-1]
+                    txt_surface = font_input.render(text, True, black)  
+                else:
+                    text += event.unicode
+                    txt_surface = font_input.render(text, True, black)
+
+            if current_game_state == GameState.SOLO_PLAY:
                 if event.key == pygame.K_UP:
                     current_index += 1
                     if current_index > 7: 
@@ -1046,6 +1084,18 @@ while True:
                     current_index -= 1
                     if current_index < 0: 
                         current_index = 7
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if current_game_state != GameState.ESC:
+                        prev_game_state = current_game_state 
+                        current_game_state = GameState.ESC
+                        
+                    else:
+                        if prev_game_state is not None:
+                            current_game_state = prev_game_state
+                            prev_game_state = None
+
 
     if current_game_state == GameState.MAIN_MENU:
         pygame.mixer.music.load(main_menu_music_path) 
@@ -1076,5 +1126,8 @@ while True:
 
     elif current_game_state == GameState.LOGIN:
         login()
+
+    elif current_game_state == GameState.ESC:
+        esc_menu()
 
     pygame.display.update()
