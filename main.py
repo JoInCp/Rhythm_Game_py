@@ -25,6 +25,7 @@ class GameState(Enum):
     LOGIN = auto()
     LOGIN_SIGNUP = auto()
     ESC = auto()
+    MAIN_MENU_ESC = auto()
 
 
 #========== 메인 화면 사진 ==========
@@ -428,6 +429,15 @@ def esc_menu():
     text_rect = text.get_rect(center=menu_button_rect.center)
     screen.blit(text, text_rect)
 
+    pygame.draw.rect(screen, white, exit_button_rect) 
+    pygame.draw.rect(screen, black, exit_button_rect, 8)  
+    text = font.render("게임 종료", True, black)
+    text_rect = text.get_rect(center=exit_button_rect.center)
+    screen.blit(text, text_rect)
+
+def main_menu_esc_menu():
+    pygame.draw.rect(screen, esc_menu_color, esc_menu_rect)
+    font = pygame.font.Font(path, 36)
     pygame.draw.rect(screen, white, exit_button_rect) 
     pygame.draw.rect(screen, black, exit_button_rect, 8)  
     text = font.render("게임 종료", True, black)
@@ -952,15 +962,16 @@ while True:
             login_pwd_input.handle_event(event)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 4:  
-                current_index += 1
-                if current_index > 7: 
-                    current_index = 0
+            if current_game_state == GameState.SOLO_PLAY:
+                if event.button == 4:  
+                    current_index += 1
+                    if current_index > 7: 
+                        current_index = 0
 
-            elif event.button == 5: 
-                current_index -= 1
-                if current_index < 0: 
-                    current_index = 7
+                elif event.button == 5: 
+                    current_index -= 1
+                    if current_index < 0: 
+                        current_index = 7
 
             if current_game_state == GameState.MAIN_MENU:
                 if solo_button_rect.collidepoint(event.pos):
@@ -974,10 +985,16 @@ while True:
                     if not is_sound_played:
                         click_sound.play()
                         is_sound_played = True
+
             elif current_game_state == GameState.ESC:
-                if current_game_state != GameState.MAIN_MENU:
-                    if menu_button_rect.collidepoint(event.pos):
-                        current_game_state = GameState.MAIN_MENU
+                if menu_button_rect.collidepoint(event.pos):
+                    current_game_state = GameState.MAIN_MENU
+
+                elif exit_button_rect.collidepoint(event.pos):
+                    pygame.quit()
+                    sys.exit()
+            
+            elif current_game_state == GameState.MAIN_MENU_ESC:
                 if exit_button_rect.collidepoint(event.pos):
                     pygame.quit()
                     sys.exit()
@@ -1089,7 +1106,10 @@ while True:
                 if event.key == pygame.K_ESCAPE:
                     if current_game_state != GameState.ESC:
                         prev_game_state = current_game_state 
-                        current_game_state = GameState.ESC
+                        if current_game_state == GameState.MAIN_MENU:
+                            current_game_state = GameState.MAIN_MENU_ESC
+                        else:
+                            current_game_state = GameState.ESC
                         
                     else:
                         if prev_game_state is not None:
@@ -1129,5 +1149,8 @@ while True:
 
     elif current_game_state == GameState.ESC:
         esc_menu()
+
+    elif current_game_state == GameState.MAIN_MENU_ESC:
+        main_menu_esc_menu()
 
     pygame.display.update()
