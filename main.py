@@ -58,7 +58,7 @@ data_file = "users.json"
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
-combo = 0
+
 
 #========== 화면 사이즈 및 색 ==========
 multi_background_color = white
@@ -103,7 +103,7 @@ current_index = 0
 close_button_size = 25
 
 player_hp = 10
-
+combo = 0
 
 #========== 로그인 & 회원가입 ==========
 total_width = 2 * 100 + 10
@@ -454,7 +454,7 @@ def blit_text_centered(surface, text_surface, rect):
 def display_logged_in_user(screen):
     if logged_in_user:
         font = pygame.font.Font(path, 30)
-        text_surface = font.render("계정 아이디: [ " + logged_in_user + " ]", True, black)
+        text_surface = font.render("접속 아이디: [ " + logged_in_user + " ]", True, black)
         screen.blit(text_surface, (10, 15))
 
 #==========솔로 플레이 화면 ==========
