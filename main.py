@@ -209,12 +209,12 @@ exit_button_rect = pygame.Rect((screen_width - 150) // 2, (screen_height - esc_m
 music_data = [
     {"number": 0, "title": "테스트1", "music_detail": "테스트 1과 관련된 내용", "music_list": "test1_note_data", "sound_file": "sounds//test.mp3"},
     {"number": 1, "title": "테스트2", "music_detail": "테스트 2과 관련된 내용", "music_list": "test2_note_data", "sound_file": "sounds//background_music.mp3"},
-    {"number": 2, "title": "테스트3", "music_detail": "테스트 3과 관련된 내용", "music_list": "test3", "sound_file": "NONE"},
-    {"number": 3, "title": "테스트4", "music_detail": "테스트 4과 관련된 내용", "music_list": "test4", "sound_file": "NONE"},
-    {"number": 4, "title": "테스트5", "music_detail": "테스트 5과 관련된 내용", "music_list": "test5", "sound_file": "NONE"},
-    {"number": 5, "title": "테스트6", "music_detail": "테스트 6과 관련된 내용", "music_list": "test6", "sound_file": "NONE"},
-    {"number": 6, "title": "테스트7", "music_detail": "테스트 7과 관련된 내용", "music_list": "test7", "sound_file": "NONE"},
-    {"number": 7, "title": "테스트8", "music_detail": "테스트 8과 관련된 내용", "music_list": "test8", "sound_file": "NONE"},
+    {"number": 2, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
+    {"number": 3, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
+    {"number": 4, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
+    {"number": 5, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
+    {"number": 6, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
+    {"number": 7, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
 ]
 
 original_note_data = []
@@ -1108,7 +1108,11 @@ while True:
                         prev_game_state = current_game_state 
                         if current_game_state == GameState.MAIN_MENU:
                             current_game_state = GameState.MAIN_MENU_ESC
-                        else:
+                        
+                        elif current_game_state == GameState.MAIN_MENU_ESC:
+                            current_game_state = GameState.MAIN_MENU
+
+                        elif current_game_state != GameState.MAIN_MENU:
                             current_game_state = GameState.ESC
                         
                     else:
