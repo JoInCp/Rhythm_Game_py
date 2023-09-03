@@ -58,7 +58,7 @@ data_file = "users.json"
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
-
+combo = 0
 
 #========== 화면 사이즈 및 색 ==========
 multi_background_color = white
@@ -130,6 +130,7 @@ user_exists_warning = False
 login_successful = False
 login_failure_warning = False
 prev_game_state = None 
+logged_in_user = None
 current_game_state = GameState.MAIN_MENU
 
 
@@ -450,6 +451,11 @@ def blit_text_centered(surface, text_surface, rect):
     text_rect = text_surface.get_rect(center=rect.center)
     surface.blit(text_surface, text_rect)
 
+def display_logged_in_user(screen):
+    if logged_in_user:
+        font = pygame.font.Font(path, 30)
+        text_surface = font.render("계정 아이디: [ " + logged_in_user + " ]", True, black)
+        screen.blit(text_surface, (10, 15))
 
 #==========솔로 플레이 화면 ==========
 def solo_play_menu():
@@ -540,6 +546,9 @@ def solo_play_menu():
         score_rect = score_surface.get_rect(topleft=(solo_play_muisc_menu_rect.left + 15, combo_rect.bottom + 10))
         screen.blit(score_surface, score_rect.topleft)
 
+        # if logged_in_user in data_file:
+        #     value = data_file[logged_in_user]
+
     pygame.draw.rect(screen, black, solo_play_muisc_menu_rect, 4) 
 
     screen.blit(text_surface, text_rect)
@@ -612,7 +621,7 @@ def solo_run_game():
     combo_number_font = pygame.font.Font(path, combo_number_font_size)
 
     score = 0
-    combo = 0
+    global combo
     max_combo = 0
     game_state = "playing"
     running = True
@@ -692,11 +701,11 @@ def solo_run_game():
     clock = pygame.time.Clock()
 
     def move_notes():
-        global combo, y_position, bottom_of_screen, player_hp 
-        bottom_of_screen = rect_y + rect_height  
+        global combo, y_position, bottom_of_screen, player_hp
+        bottom_of_screen = rect_y + rect_height
         current_time = pygame.time.get_ticks()
         notes_to_remove = []
-        
+
         for note in note_data:
             if current_time >= note["start_time"]:
                 note["number"] += note["note_speed"]
@@ -839,6 +848,11 @@ def solo_run_game():
                         if not hit_note:
                             combo = 0
 
+            elif event.type == pygame.KEYUP:
+                for button in button_data:
+                    if event.key == button["key"]:
+                        button["color"] = black
+
             if game_state in ["game_over", "win"]:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
@@ -857,15 +871,12 @@ def solo_run_game():
                             note["start_time"] = pygame.time.get_ticks() + note["note_start_delays"]
                             note["number"] = initial_position_outside_screen
                             note["hit"] = False
+
                     if menu_button_rect.collidepoint(event.pos):
                         player_hp = 10
+                        combo = 0
                         running = False
                         current_game_state = GameState.SOLO_PLAY
-
-            elif event.type == pygame.KEYUP:
-                for button in button_data:
-                    if event.key == button["key"]:
-                        button["color"] = black
         
         if game_state == "playing":
             if not note_data and player_hp > 0: 
@@ -915,7 +926,10 @@ def solo_run_game():
                                     if combo % 10 == 0 and combo != 0:
                                         score += 5
                                     note_data.remove(note)
-                                    break
+                                elif y_position >= check_line: 
+                                    combo = 0
+                                    note_data.remove(note)
+                                break
                             elif y_position > rect_y + rect_height:
                                 if lane == button_data.index(button):
                                     combo = 0
@@ -1033,6 +1047,7 @@ while True:
                         print("비밀번호가 일치하지 않습니다.")
             elif current_game_state == GameState.LOGIN and login_confirm_button.collidepoint(event.pos):
                 if verify_login(login_user_input.text, login_pwd_input.text):
+                    logged_in_user = login_user_input.text  # 사용자 아이디 저장
                     login_successful = True
                     login_failure_warning = False
                     screen.fill(white)
@@ -1129,6 +1144,7 @@ while True:
     elif current_game_state == GameState.SOLO_PLAY:
         pygame.mixer.music.stop()
         solo_play_menu()
+        display_logged_in_user(screen)
 
     elif current_game_state == GameState.MULTI_PLAY:
         draw_multi_background()
