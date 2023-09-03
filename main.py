@@ -845,8 +845,6 @@ def solo_run_game():
                             if note["lane"] == lane and y_position <= line_y and y_position + note_height >= line_y:
                                 hit_note = True
                                 break
-                        if not hit_note:
-                            combo = 0
 
             elif event.type == pygame.KEYUP:
                 for button in button_data:

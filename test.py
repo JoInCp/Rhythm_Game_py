@@ -73,19 +73,212 @@ def run_game():
 
     # ========== 노트 데이터 ==========
     original_note_data  = [
-        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 1200, "note_speed": 1/10},
-        {"number": 1, "color": "black", "lane": 1, "note_start_delays": 1200, "note_speed": 1/10},
-        {"number": 2, "color": "black", "lane": 0, "note_start_delays": 2200, "note_speed": 1/10},
-        {"number": 3, "color": "black", "lane": 1, "note_start_delays": 2200, "note_speed": 1/10},
-        {"number": 4, "color": "black", "lane": 3, "note_start_delays": 3200, "note_speed": 1/10},
-        {"number": 5, "color": "black", "lane": 1, "note_start_delays": 4200, "note_speed": 1/10},
-        {"number": 6, "color": "black", "lane": 2, "note_start_delays": 4200, "note_speed": 1/10},
-        {"number": 7, "color": "black", "lane": 3, "note_start_delays": 5200, "note_speed": 1/10},
-        {"number": 8, "color": "black", "lane": 1, "note_start_delays": 5200, "note_speed": 1/10},
-        {"number": 9, "color": "black", "lane": 2, "note_start_delays": 6200, "note_speed": 1/10},
-        {"number": 10, "color": "black", "lane": 3, "note_start_delays": 6200, "note_speed": 1/10}
-]
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 800, "note_speed": 1/10},
+        {"number": 1, "color": "black", "lane": 1, "note_start_delays": 800, "note_speed": 1/10},
+        
+        {"number": 2, "color": "black", "lane": 0, "note_start_delays": 3400, "note_speed": 1/10},
+        {"number": 3, "color": "black", "lane": 1, "note_start_delays": 3400, "note_speed": 1/10},
+        
+        {"number": 4, "color": "black", "lane": 0, "note_start_delays": 6100, "note_speed": 1/10},
+        {"number": 5, "color": "black", "lane": 1, "note_start_delays": 6100, "note_speed": 1/10},
 
+        {"number": 6, "color": "black", "lane": 0, "note_start_delays": 8800, "note_speed": 1/10},
+        {"number": 7, "color": "black", "lane": 1, "note_start_delays": 8800, "note_speed": 1/10},
+        
+        {"number": 8, "color": "black", "lane": 0, "note_start_delays": 11400, "note_speed": 1/10},
+        {"number": 9, "color": "black", "lane": 1, "note_start_delays": 11400, "note_speed": 1/10},
+        
+        {"number": 10, "color": "black", "lane": 2, "note_start_delays": 14000, "note_speed": 1/10},
+        {"number": 11, "color": "black", "lane": 3, "note_start_delays": 14000, "note_speed": 1/10},
+        
+        {"number": 12, "color": "black", "lane": 2, "note_start_delays": 16800, "note_speed": 1/10},
+        {"number": 13, "color": "black", "lane": 3, "note_start_delays": 16800, "note_speed": 1/10},
+
+        {"number": 14, "color": "black", "lane": 2, "note_start_delays": 19400, "note_speed": 1/10},
+        {"number": 15, "color": "black", "lane": 3, "note_start_delays": 19400, "note_speed": 1/10},
+
+        {"number": 16, "color": "black", "lane": 2, "note_start_delays": 22000, "note_speed": 1/10},
+        {"number": 17, "color": "black", "lane": 3, "note_start_delays": 22000, "note_speed": 1/10},
+
+        {"number": 18, "color": "black", "lane": 2, "note_start_delays": 24900, "note_speed": 1/10},
+        {"number": 19, "color": "black", "lane": 3, "note_start_delays": 24900, "note_speed": 1/10},
+
+        {"number": 20, "color": "black", "lane": 0, "note_start_delays": 27500, "note_speed": 1/10},
+        {"number": 21, "color": "black", "lane": 1, "note_start_delays": 27500, "note_speed": 1/10},
+
+        {"number": 22, "color": "black", "lane": 2, "note_start_delays": 30200, "note_speed": 1/10},
+        {"number": 23, "color": "black", "lane": 3, "note_start_delays": 30200, "note_speed": 1/10},
+
+        {"number": 24, "color": "black", "lane": 0, "note_start_delays": 32800, "note_speed": 1/10},
+        {"number": 25, "color": "black", "lane": 1, "note_start_delays": 32800, "note_speed": 1/10},
+
+        {"number": 26, "color": "black", "lane": 2, "note_start_delays": 35500, "note_speed": 1/10},
+        {"number": 27, "color": "black", "lane": 3, "note_start_delays": 35500, "note_speed": 1/10},
+
+        {"number": 28, "color": "black", "lane": 0, "note_start_delays": 38200, "note_speed": 1/10},
+        {"number": 29, "color": "black", "lane": 1, "note_start_delays": 38200, "note_speed": 1/10},
+
+        {"number": 30, "color": "black", "lane": 0, "note_start_delays": 40800, "note_speed": 1/10},
+        {"number": 31, "color": "black", "lane": 1, "note_start_delays": 40800, "note_speed": 1/10},
+
+        {"number": 32, "color": "black", "lane": 0, "note_start_delays": 43500, "note_speed": 1/10},
+        {"number": 33, "color": "black", "lane": 1, "note_start_delays": 43500, "note_speed": 1/10},
+
+        {"number": 34, "color": "black", "lane": 0, "note_start_delays": 46200, "note_speed": 1/10},
+        {"number": 35, "color": "black", "lane": 1, "note_start_delays": 46200, "note_speed": 1/10},
+
+        {"number": 36, "color": "black", "lane": 0, "note_start_delays": 48800, "note_speed": 1/10},
+        {"number": 37, "color": "black", "lane": 3, "note_start_delays": 48800, "note_speed": 1/10},
+
+        {"number": 38, "color": "black", "lane": 1, "note_start_delays": 51500, "note_speed": 1/10},
+        {"number": 39, "color": "black", "lane": 2, "note_start_delays": 51500, "note_speed": 1/10},
+
+        {"number": 20, "color": "black", "lane": 0, "note_start_delays": 54200, "note_speed": 1/10},
+        {"number": 20, "color": "black", "lane": 1, "note_start_delays": 54200, "note_speed": 1/10},
+         
+        {"number": 21, "color": "black", "lane": 0, "note_start_delays": 54500, "note_speed": 1/10},
+        {"number": 21, "color": "black", "lane": 1, "note_start_delays": 54500, "note_speed": 1/10},
+         
+        {"number": 22, "color": "black", "lane": 0, "note_start_delays": 54800, "note_speed": 1/10},
+        {"number": 22, "color": "black", "lane": 1, "note_start_delays": 54800, "note_speed": 1/10},
+         
+        {"number": 23, "color": "black", "lane": 0, "note_start_delays": 55200, "note_speed": 1/10},
+        {"number": 23, "color": "black", "lane": 1, "note_start_delays": 55200, "note_speed": 1/10},
+         
+        {"number": 24, "color": "black", "lane": 0, "note_start_delays": 55500, "note_speed": 1/10},
+        {"number": 24, "color": "black", "lane": 1, "note_start_delays": 55500, "note_speed": 1/10},
+
+
+        
+         
+        {"number": 25, "color": "black", "lane": 0, "note_start_delays": 55800, "note_speed": 1/10},
+         
+        {"number": 26, "color": "black", "lane": 0, "note_start_delays": 56200, "note_speed": 1/10},
+         
+        {"number": 27, "color": "black", "lane": 0, "note_start_delays": 56500, "note_speed": 1/10},
+         
+        {"number": 28, "color": "black", "lane": 0, "note_start_delays": 56800, "note_speed": 1/10},
+         
+        {"number": 29, "color": "black", "lane": 0, "note_start_delays": 57100, "note_speed": 1/10},
+        
+        {"number": 30, "color": "black", "lane": 0, "note_start_delays": 57500, "note_speed": 1/10},
+         
+        {"number": 31, "color": "black", "lane": 0, "note_start_delays": 57800, "note_speed": 1/10},
+         
+        {"number": 32, "color": "black", "lane": 0, "note_start_delays": 58200, "note_speed": 1/10},
+         
+        {"number": 33, "color": "black", "lane": 0, "note_start_delays": 58500, "note_speed": 1/10},
+         
+        {"number": 34, "color": "black", "lane": 0, "note_start_delays": 58800, "note_speed": 1/10},
+
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 59200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 59500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 59800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 60200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 60500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 60800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 61200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 61500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 61800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 62200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 62500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 62800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 63200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 63500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 63800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 64200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 64500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 64800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 65200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 65500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 65800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 66200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 66500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 66800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 67100, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 67500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 67800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 68200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 68500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 68800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 69200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 69500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 69800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 70200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 70500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 70800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 71200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 71500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 71800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 72200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 72500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 72800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 73200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 73500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 73800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 74200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 74500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 74800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 75200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 75500, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 78200, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 80800, "note_speed": 1/10},
+         
+        {"number": 0, "color": "black", "lane": 0, "note_start_delays": 83500, "note_speed": 1/10}
+
+]
+         
     initial_position_outside_screen = -5  # 더 큰 값을 사용해도 됩니다.
     for note in original_note_data:
         note["start_time"] = pygame.time.get_ticks() + note["note_start_delays"]
@@ -182,6 +375,7 @@ def run_game():
 
     def play_song():
         pygame.mixer.music.load(song_file_path)
+        pygame.mixer.music.set_volume(0.01)
         pygame.mixer.music.play()
 
     def stop_song():
@@ -262,8 +456,7 @@ def run_game():
                             if note["lane"] == lane and y_position <= line_y and y_position + note_height >= line_y:
                                 hit_note = True
                                 break
-                        if not hit_note:
-                            comb = 0
+
             if game_state in ["game_over", "win"]:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = pygame.mouse.get_pos()
