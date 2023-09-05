@@ -7,13 +7,16 @@ import copy
 import time
 from enum import Enum, auto
 
+
 # ========== 초기 설정 ==========
 pygame.init()
+
 
 # ========== 화면 설정 ==========
 screen_width = 1000
 screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
+
 
 # ========== 게임 상태 ==========
 class GameState(Enum):
@@ -32,11 +35,13 @@ class GameState(Enum):
 
 current_game_state = GameState.MAIN_MENU
 
+
 # ========== 미디어 리소스 로드 ==========
 # 메인 화면 이미지
 image_path = "images//main.jpg"
 image = pygame.image.load(image_path)
 image_rect = image.get_rect(center=(screen_width // 2.5, screen_height // 2))
+
 
 # 배경 음악
 main_menu_music_path = "sounds//background_music.mp3"
@@ -44,10 +49,12 @@ pygame.mixer.music.load(main_menu_music_path)
 pygame.mixer.music.set_volume(0.1)
 pygame.mixer.music.play(-1)
 
+
 # 클릭 사운드
 click_sound_path = "sounds//switch.mp3"
 click_sound = pygame.mixer.Sound(click_sound_path)
 click_sound.set_volume(0.2)
+
 
 # ========== 폰트 및 색상 설정 ==========
 font_path = "font//KBO Dia Gothic_medium.ttf"
@@ -57,6 +64,7 @@ data_file = "users.json"
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
+
 
 #========== 화면 사이즈 및 색 ==========
 multi_background_color = white
@@ -103,6 +111,7 @@ close_button_size = 25
 player_hp = 10
 combo = 0
 
+
 #========== 로그인 & 회원가입 ==========
 total_width = 2 * 120 + 20
 start_x = login_signup_menu_center_x - total_width // 2
@@ -133,6 +142,23 @@ login_invalid_input_warning = False
 prev_game_state = None 
 logged_in_user = None
 current_game_state = GameState.MAIN_MENU
+
+
+#========== 노래 정보 ==========
+music_data = [
+    {"number": 0, "title": "테스트1", "music_detail": "테스트 1과 관련된 내용", "music_list": "test1_note_data", "sound_file": "sounds//test.mp3"},
+    {"number": 1, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
+    {"number": 2, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
+    {"number": 3, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
+    {"number": 4, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
+    {"number": 5, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
+    {"number": 6, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
+    {"number": 7, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
+]
+
+original_note_data = []
+
+music_result = {} 
 
 
 #========== 방만들기 텍스트입력 ==========
@@ -216,30 +242,8 @@ login_close_button = pygame.Rect(start_x + 120 + 20, login_close_button_center_y
 menu_button_rect = pygame.Rect((screen_width - 150) // 2, (screen_height - esc_menu_size[1]) + 330, 180, 60)
 exit_button_rect = pygame.Rect((screen_width - 150) // 2, (screen_height - esc_menu_size[1]) + 400, 180, 60)
 
-#========== 노래 정보 ==========
-music_data = [
-    {"number": 0, "title": "테스트1", "music_detail": "테스트 1과 관련된 내용", "music_list": "test1_note_data", "sound_file": "sounds//test.mp3"},
-    {"number": 1, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
-    {"number": 2, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
-    {"number": 3, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
-    {"number": 4, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
-    {"number": 5, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
-    {"number": 6, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
-    {"number": 7, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
-]
 
-original_note_data = []
-
-music_result = {} 
-
-warning_activation_times = {
-    "signup_invalid_input": None,
-    "login_invalid_input": None,
-    "user_exists": None,
-    "password_mismatch": None,
-    "login_failure": None
-}
-
+#========== 로그인 & 회원가입 경고 메세지 체크 ==========
 def activate_warning(warning_name):
     global warning_activation_times, signup_invalid_input_warning, login_invalid_input_warning, user_exists_warning, password_mismatch_warning, login_failure_warning
     warning_activation_times[warning_name] = pygame.time.get_ticks()
@@ -313,9 +317,13 @@ def save_user(username, password):
     users[username] = password
     with open(data_file, 'w') as f:
         json.dump(users, f)
+
         
 #========== 로그인 & 회원가입 입력 ==========
 class InputBox:
+
+    delete_pressed = False
+
     def __init__(self, x, y, w, h, text='', password_mode=False):
         self.rect = pygame.Rect(x, y, w, h)
         self.color = black
@@ -327,6 +335,8 @@ class InputBox:
         self.cursor_visible = True  
         self.last_cursor_switch_time = pygame.time.get_ticks()  
         self.cursor_interval = 500  
+        self.backspace_interval = 50
+        self.last_backspace_time = 0
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -336,10 +346,21 @@ class InputBox:
                 self.active = False
         if self.active and event.type == pygame.KEYDOWN:
             if event.key == pygame.K_BACKSPACE:
-                self.text = self.text[:-1]
-            elif event.key not in [pygame.K_RETURN, pygame.K_SPACE]: 
+                InputBox.delete_pressed = True
+            elif event.key not in [pygame.K_RETURN, pygame.K_SPACE] and is_valid_string(event.unicode):
                 self.text += event.unicode
-            self.txt_surface = self.font.render(self.text, True, black)
+                self.txt_surface = self.font.render(self.text, True, black)
+
+        if self.active and InputBox.delete_pressed:  
+            current_time = pygame.time.get_ticks()
+            if current_time - self.last_backspace_time > self.backspace_interval:
+                self.text = self.text[:-1] 
+                self.txt_surface = self.font.render(self.text, True, black)
+            self.last_backspace_time = current_time
+
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_BACKSPACE:
+                InputBox.delete_pressed = False 
 
     def draw(self, screen):
         display_text = self.text if not self.password_mode else '*' * len(self.text)
@@ -362,9 +383,19 @@ class InputBox:
     def clear_text(self):
         self.text = ''
 
+
 #========== 로그인 & 회원가입 입력 텍스트 검사 ==========
 def is_valid_string(s):
-    return s.isalnum() 
+    return s.isalnum()
+
+warning_activation_times = {
+    "signup_invalid_input": None,
+    "login_invalid_input": None,
+    "user_exists": None,
+    "password_mismatch": None,
+    "login_failure": None
+}
+
 
 #========== 로그인 & 회원가입 입력 칸 ==========
 input_box_width = 220  
@@ -375,14 +406,6 @@ signup_confirm_input = InputBox((screen_width - input_box_width) // 2, login_sig
 login_user_input = InputBox((screen_width - input_box_width) // 2, login_signup_menu_center_y - 90, 220, 40)
 login_pwd_input = InputBox((screen_width - input_box_width) // 2, login_signup_menu_center_y - 10, 220, 40, password_mode=True)
 
-#========== 로그인 & 회원 가입 경고 메세지 초기화 ==========
-def reset_warnings():
-    global signup_invalid_input_warning, login_invalid_input_warning, user_exists_warning, password_mismatch_warning, login_failure_warning
-    signup_invalid_input_warning = False
-    user_exists_warning = False
-    password_mismatch_warning = False
-    login_failure_warning = False
-    login_invalid_input_warning = False
 
 #========== 로그인 & 회원가입 버튼 ==========
 def login_signup_draw_button(screen, button_rect, text, font_path, font_size=35):
@@ -412,6 +435,7 @@ def draw_button2(text, x, y, width, height, is_pressed):
     button_text_rect = button_text.get_rect(center=button_rect.center)
     screen.blit(button_text, button_text_rect)
 
+
 #========== 로그인 & 화원가입 화면 ==========
 def login_signup_menu():
     screen.fill(login_signup_menu_color)
@@ -433,7 +457,7 @@ def login():
     for index, label in enumerate(labels):
         rendered_label = label_font.render(label, True, black)
         screen.blit(rendered_label, (login_user_input.rect.x, login_signup_menu_center_y - 120 + index * 80))
-        
+
     login_user_input.draw(screen)
     login_pwd_input.draw(screen)
 
@@ -459,9 +483,10 @@ def login():
     close_text = close_font.render("닫기", True, black)
     screen.blit(close_text, (login_close_button.x + (login_close_button.width - close_text.get_width()) // 2, login_close_button.y + (login_close_button.height - close_text.get_height()) // 2))
 
+
 #========== 회원가입 화면 ==========
 def signup():
-    global user_exists_warning, password_mismatch_warning,signup_invalid_input_warning
+    global user_exists_warning, password_mismatch_warning, signup_invalid_input_warning
 
     pygame.draw.rect(screen, login_signup_menu_color, login_signup_menu_rect)
     pygame.draw.rect(screen, black, login_signup_menu_rect, 4)
@@ -510,6 +535,7 @@ def main_menu():
     draw_button("솔로 플레이", solo_button_rect.x, solo_button_rect.y, main_menu_button_width, main_menu_button_height, is_solo_button_pressed)
     draw_button("멀티 플레이", multi_button_rect.x, multi_button_rect.y, main_menu_button_width, main_menu_button_height, is_multi_button_pressed)
 
+
 #========== esc 화면 ==========
 def esc_menu():
     pygame.draw.rect(screen, esc_menu_color, esc_menu_rect)
@@ -526,6 +552,7 @@ def esc_menu():
     text_rect = text.get_rect(center=exit_button_rect.center)
     screen.blit(text, text_rect)
 
+
 #========== 메인화면에서 esc 화면 ==========
 def main_menu_esc_menu():
     pygame.draw.rect(screen, esc_menu_color, esc_menu_rect)
@@ -536,6 +563,7 @@ def main_menu_esc_menu():
     text_rect = text.get_rect(center=exit_button_rect.center)
     screen.blit(text, text_rect)
 
+
 #========== 접속 아이디 표시 ==========
 def display_logged_in_user(screen):
     if logged_in_user:
@@ -543,10 +571,12 @@ def display_logged_in_user(screen):
         text_surface = font.render("접속 아이디: [ " + logged_in_user + " ]", True, black)
         screen.blit(text_surface, (10, 15))
 
+
 #========== 솔로플레이 텍스트 위치 ==========
 def blit_text_centered(surface, text_surface, rect):
     text_rect = text_surface.get_rect(center=rect.center)
     surface.blit(text_surface, text_rect)
+
 
 #========== 솔로 플레이 화면 ==========
 def solo_play_menu():
@@ -641,6 +671,7 @@ def solo_play_menu():
 
     screen.blit(text_surface, text_rect)
 
+
 #========== 멀티 플레이 화면 ==========
 def draw_multi_background():
     pygame.draw.rect(screen, multi_background_color, multi_background_rect)
@@ -653,6 +684,7 @@ def draw_multi_background():
     text = font_small.render("방 목록", True, black)
     text_rect = text.get_rect(center=(multi_background_rect.centerx, multi_background_rect.top + 60))
     screen.blit(text, text_rect)    
+
 
 #========== 멀티플레이 방 버튼 ==========
 def create_buttons():
@@ -735,7 +767,6 @@ def solo_run_game():
     pause_start_time = 0
     total_pause_duration = 0
 
-
     hp_bar_x = screen_width - 350
     hp_bar_y = hp_label_rect.bottom 
     hp_bar_width = 260
@@ -783,7 +814,7 @@ def solo_run_game():
         rectangle_width = 90
         for button in button_data:
             rectangle_x = button["x"] + button["width"] // 2 - rectangle_width // 2
-            rectangle_y = button["y"] - rectangle_height - 80
+            rectangle_y = button["y"] - rectangle_height - 75
             pygame.draw.rect(screen, white, (rectangle_x, rectangle_y, rectangle_width, rectangle_height)) 
             pygame.draw.rect(screen, black, (rectangle_x, rectangle_y, rectangle_width, rectangle_height), 4) 
 
@@ -965,7 +996,6 @@ def solo_run_game():
     
         screen.blit(retry_button_text, retry_button_rect)
         screen.blit(exit_button_text, exit_button_rect)
-
         return retry_button_rect, exit_button_rect
 
     while running:
@@ -1064,7 +1094,7 @@ def solo_run_game():
         
         if game_state == "playing":
             pygame.draw.line(screen, black, (rect_x, max(check_line, rect_y)), (rect_x + rect_width-5, max(check_line, rect_y)), 8)
-            pygame.draw.line(screen, white, (rect_x, max(hit_line, rect_y)), (rect_x + rect_width-5, max(hit_line, rect_y)), 8)
+            pygame.draw.line(screen, black, (rect_x, max(hit_line, rect_y)), (rect_x + rect_width-5, max(hit_line, rect_y)), 8)
 
             if not note_data and player_hp > 0: 
                 game_state = "win"
@@ -1138,8 +1168,6 @@ def solo_run_game():
 
             play_game_combo_and_score()
             
-            
-
             pygame.display.flip()
             clock.tick(60)
 
@@ -1154,12 +1182,15 @@ def solo_run_game():
 
 #========== 메인 루트 ==========
 while True:
+    #========== 경고 비활성화 ==========
     deactivate_warnings_after_delay()
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
 
+        #========== 현재 게임 상태에 따라 이벤트 처리 ==========
         if current_game_state == GameState.SIGNUP:
             signup_user_input.handle_event(event)
             signup_pwd_input.handle_event(event)
@@ -1169,40 +1200,38 @@ while True:
             login_user_input.handle_event(event)
             login_pwd_input.handle_event(event)
 
+        #========== 마우스 버튼 이벤트 처리 ==========
         if event.type == pygame.MOUSEBUTTONDOWN:
             if current_game_state == GameState.SOLO_PLAY:
-                if event.button == 4:  
+                if event.button == 4:
                     current_index += 1
-                    if current_index > 7: 
+                    if current_index > 7:
                         current_index = 0
-
-                elif event.button == 5: 
+                elif event.button == 5:
                     current_index -= 1
-                    if current_index < 0: 
+                    if current_index < 0:
                         current_index = 7
 
             if current_game_state == GameState.MAIN_MENU:
                 if solo_button_rect.collidepoint(event.pos):
                     current_game_state = GameState.LOGIN_SIGNUP
-
                     if not is_sound_played:
                         click_sound.play()
                         is_sound_played = True
-
                 elif multi_button_rect.collidepoint(event.pos):
                     current_game_state = GameState.MULTI_PLAY
                     if not is_sound_played:
                         click_sound.play()
                         is_sound_played = True
 
+            #========== ESC 키를 눌렀을 때 메뉴 처리 ==========
             elif current_game_state == GameState.ESC:
                 if menu_button_rect.collidepoint(event.pos):
                     current_game_state = GameState.MAIN_MENU
-
                 elif exit_button_rect.collidepoint(event.pos):
                     pygame.quit()
                     sys.exit()
-            
+
             elif current_game_state == GameState.MAIN_MENU_ESC:
                 if exit_button_rect.collidepoint(event.pos):
                     pygame.quit()
@@ -1211,25 +1240,21 @@ while True:
             elif current_game_state == GameState.LOGIN_SIGNUP:
                 if signup_button.collidepoint(event.pos):
                     current_game_state = GameState.SIGNUP
-
                 elif login_button.collidepoint(event.pos):
                     current_game_state = GameState.LOGIN
-
                 if close_button_rect.collidepoint(event.pos):
                     current_game_state = GameState.MAIN_MENU
-                    continue  
-            
+                    continue
+
             elif current_game_state == GameState.SIGNUP and signup_close_button.collidepoint(event.pos):
                 signup_user_input.clear_text()
                 signup_pwd_input.clear_text()
                 signup_confirm_input.clear_text()
-                reset_warnings()
                 current_game_state = GameState.LOGIN_SIGNUP
 
             elif current_game_state == GameState.LOGIN and login_close_button.collidepoint(event.pos):
                 login_user_input.clear_text()
                 login_pwd_input.clear_text()
-                reset_warnings()
                 current_game_state = GameState.LOGIN_SIGNUP
 
             elif current_game_state == GameState.SIGNUP and signup_confirm_button.collidepoint(event.pos):
@@ -1242,6 +1267,9 @@ while True:
                         activate_warning("password_mismatch")
                     else:
                         save_user(signup_user_input.text, signup_pwd_input.text)
+                        signup_user_input.clear_text()
+                        signup_pwd_input.clear_text()
+                        signup_confirm_input.clear_text()
                         print("회원가입 성공!")
                         current_game_state = GameState.LOGIN_SIGNUP
 
@@ -1253,32 +1281,55 @@ while True:
                 else:
                     logged_in_user = login_user_input.text
                     login_successful = True
+                    login_user_input.clear_text()
+                    login_pwd_input.clear_text()
                     print("로그인 성공!")
                     current_game_state = GameState.SOLO_PLAY
-                    
-            
-            elif current_game_state == GameState.MULTI_PLAY:
-                if create_button_rect.collidepoint(event.pos):
-                    current_game_state = GameState.CREATE
 
-                if close_button_rect.collidepoint(event.pos):
-                    current_game_state = GameState.MAIN_MENU
-                    continue  
-
-                if input_box.collidepoint(event.pos):
-                    active = not active
-
+        #========== 키 이벤트 처리 ==========
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                if current_game_state != GameState.ESC:
+                    prev_game_state = current_game_state
+                    if current_game_state == GameState.MAIN_MENU:
+                        current_game_state = GameState.MAIN_MENU_ESC
+                    elif current_game_state == GameState.MAIN_MENU_ESC:
+                        current_game_state = GameState.MAIN_MENU
+                    elif current_game_state != GameState.MAIN_MENU:
+                        current_game_state = GameState.ESC
                 else:
-                    active = False
-                color = color_active if active else color_inactive
-            
-            elif current_game_state == GameState.CREATE:
-                if no_button_rect.collidepoint(event.pos):
-                    current_game_state = GameState.MULTI_PLAY
+                    if prev_game_state is not None:
+                        current_game_state = prev_game_state
+                        prev_game_state = None
 
-                if ok_button_rect.collidepoint(event.pos):
-                    current_game_state = GameState.LOADING
+            if current_game_state == GameState.SIGNUP and event.key == pygame.K_RETURN:
+                if not is_valid_string(signup_user_input.text) or not is_valid_string(signup_pwd_input.text):
+                    activate_warning("signup_invalid_input")
+                elif user_exists(signup_user_input.text):
+                    activate_warning("user_exists")
+                else:
+                    if signup_pwd_input.text != signup_confirm_input.text:
+                        activate_warning("password_mismatch")
+                    else:
+                        save_user(signup_user_input.text, signup_pwd_input.text)
+                        signup_user_input.clear_text()
+                        signup_pwd_input.clear_text()
+                        signup_confirm_input.clear_text()
+                        print("회원가입 성공!")
+                        current_game_state = GameState.LOGIN_SIGNUP
 
+            elif current_game_state == GameState.LOGIN and event.key == pygame.K_RETURN:
+                if not is_valid_string(login_user_input.text) or not is_valid_string(login_pwd_input.text):
+                    activate_warning("login_invalid_input")
+                elif not verify_login(login_user_input.text, login_pwd_input.text):
+                    activate_warning("login_failure")
+                else:
+                    logged_in_user = login_user_input.text
+                    login_successful = True
+                    login_user_input.clear_text()
+                    login_pwd_input.clear_text()
+                    print("로그인 성공!")
+                    current_game_state = GameState.SOLO_PLAY
 
         if event.type == pygame.MOUSEBUTTONDOWN and current_game_state == GameState.SOLO_PLAY:
             if start_button_rect.collidepoint(event.pos):
@@ -1298,23 +1349,20 @@ while True:
             if current_game_state == GameState.CREATE:
                 if event.key == pygame.K_RETURN:
                     current_game_state = GameState.LOADING
-
                 elif event.key == pygame.K_BACKSPACE:
                     text = text[:-1]
-                    txt_surface = font_input.render(text, True, black)  
+                    txt_surface = font_input.render(text, True, black)
 
             if current_game_state == GameState.SOLO_PLAY:
                 if event.key == pygame.K_UP:
                     current_index += 1
-                    if current_index > 7: 
+                    if current_index > 7:
                         current_index = 0
-
                 elif event.key == pygame.K_DOWN:
                     current_index -= 1
-                    if current_index < 0: 
+                    if current_index < 0:
                         current_index = 7
-
-                elif event.key == pygame.K_RETURN: 
+                elif event.key == pygame.K_RETURN:
                     music_list_value = music_data[(current_index + 2) % len(music_data)]["music_list"]
                     song_file_path = music_data[(current_index + 2) % len(music_data)]["sound_file"]
                     file_name = "note_data/" + music_list_value + ".json"
@@ -1326,53 +1374,9 @@ while True:
                             solo_run_game()
                     except FileNotFoundError:
                         pass
-                
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    if current_game_state != GameState.ESC:
-                        prev_game_state = current_game_state 
-                        if current_game_state == GameState.MAIN_MENU:
-                            current_game_state = GameState.MAIN_MENU_ESC
-                        
-                        elif current_game_state == GameState.MAIN_MENU_ESC:
-                            current_game_state = GameState.MAIN_MENU
-
-                        elif current_game_state != GameState.MAIN_MENU:
-                            current_game_state = GameState.ESC
-                        
-                    else:
-                        if prev_game_state is not None:
-                            current_game_state = prev_game_state
-                            prev_game_state = None
-
-            if event.type == pygame.KEYDOWN:
-                if current_game_state == GameState.SIGNUP and event.key == pygame.K_RETURN:
-                    if not is_valid_string(signup_user_input.text) or not is_valid_string(signup_pwd_input.text):
-                        activate_warning("signup_invalid_input")
-                    elif user_exists(signup_user_input.text):
-                        activate_warning("user_exists")
-                    else:
-                        if signup_pwd_input.text != signup_confirm_input.text:
-                            activate_warning("password_mismatch")
-                        else:
-                            save_user(signup_user_input.text, signup_pwd_input.text)
-                            print("회원가입 성공!")
-                            current_game_state = GameState.LOGIN_SIGNUP
-
-                elif current_game_state == GameState.LOGIN and event.key == pygame.K_RETURN:
-                    if not is_valid_string(login_user_input.text) or not is_valid_string(login_pwd_input.text):
-                        activate_warning("login_invalid_input")
-                    elif not verify_login(login_user_input.text, login_pwd_input.text):
-                        activate_warning("login_failure")
-                    else:
-                        logged_in_user = login_user_input.text
-                        login_successful = True
-                        print("로그인 성공!")
-                        current_game_state = GameState.SOLO_PLAY
-
 
     if current_game_state == GameState.MAIN_MENU:
-        pygame.mixer.music.load(main_menu_music_path) 
+        pygame.mixer.music.load(main_menu_music_path)
         pygame.mixer.music.play(-1)
         main_menu()
 
@@ -1407,6 +1411,5 @@ while True:
 
     elif current_game_state == GameState.MAIN_MENU_ESC:
         main_menu_esc_menu()
-        
 
     pygame.display.update()
