@@ -7,12 +7,15 @@ import copy
 import time
 from enum import Enum, auto
 
+# ========== 초기 설정 ==========
 pygame.init()
 
+# ========== 화면 설정 ==========
 screen_width = 1000
 screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
 
+# ========== 게임 상태 ==========
 class GameState(Enum):
     MAIN_MENU = auto()
     SOLO_PLAY = auto()
@@ -27,38 +30,33 @@ class GameState(Enum):
     ESC = auto()
     MAIN_MENU_ESC = auto()
 
+current_game_state = GameState.MAIN_MENU
 
-#========== 메인 화면 사진 ==========
-image_path = "images//main.jpg"  
+# ========== 미디어 리소스 로드 ==========
+# 메인 화면 이미지
+image_path = "images//main.jpg"
 image = pygame.image.load(image_path)
-image_rect = image.get_rect()
-image_rect.center = (screen_width // 2.5, screen_height // 2)
+image_rect = image.get_rect(center=(screen_width // 2.5, screen_height // 2))
 
-
-#========== 메인화면 배경음 ==========
-main_menu_music_path = "sounds//background_music.mp3"  
+# 배경 음악
+main_menu_music_path = "sounds//background_music.mp3"
 pygame.mixer.music.load(main_menu_music_path)
-pygame.mixer.music.set_volume(0.1)  
+pygame.mixer.music.set_volume(0.1)
 pygame.mixer.music.play(-1)
 
-#========== 버튼 클릭 사운드 ==========
-is_sound_played = False
-click_sound_path = "sounds//switch.mp3"  
+# 클릭 사운드
+click_sound_path = "sounds//switch.mp3"
 click_sound = pygame.mixer.Sound(click_sound_path)
 click_sound.set_volume(0.2)
 
-
-#========== 폰트 ==========
-path = "font/KBO Dia Gothic_medium.ttf"
-path2 = "font/MBC 1961 M.ttf"
+# ========== 폰트 및 색상 설정 ==========
+font_path = "font//KBO Dia Gothic_medium.ttf"
+font_path2 = "font//MBC 1961 M.ttf"
 data_file = "users.json"
 
-
-#========== 색상 ==========
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
-
 
 #========== 화면 사이즈 및 색 ==========
 multi_background_color = white
@@ -94,7 +92,7 @@ button_bg_color = white
 button_border_color = black
 main_menu_button_font_size = 46
 
-button_font = pygame.font.Font(path, main_menu_button_font_size)
+button_font = pygame.font.Font(font_path, main_menu_button_font_size)
 
 login_signup_menu_center_x = screen_width // 2
 login_signup_menu_center_y = screen_height // 2
@@ -106,18 +104,19 @@ player_hp = 10
 combo = 0
 
 #========== 로그인 & 회원가입 ==========
-total_width = 2 * 100 + 10
+total_width = 2 * 120 + 20
 start_x = login_signup_menu_center_x - total_width // 2
-signup_close_button_center_x = screen_width // 2 + 100 // 2 + 10 // 2
+signup_close_button_center_x = screen_width // 2 + 120 // 2 + 20 // 2
 signup_close_button_center_y = screen_height // 2 + 130 - 30 // 2
-signup_confirm_button_center_x = signup_close_button_center_x - 100 - 10 
+signup_confirm_button_center_x = signup_close_button_center_x - 120 - 20 
 
-login_close_button_center_x = screen_width // 2 + 100 // 2 + 10 // 2
+login_close_button_center_x = screen_width // 2 + 120 // 2 + 20 // 2
 login_close_button_center_y = screen_height // 2 + 90 - 30 // 2
-login_confirm_button_center_x = login_close_button_center_x - 100 - 10 
+login_confirm_button_center_x = login_close_button_center_x - 120 - 20 
 
 
 #========== 체크 ==========
+is_sound_played = False
 is_solo_button_pressed = False
 is_multi_button_pressed = False
 is_create_button_pressed = False
@@ -143,7 +142,7 @@ color_active = pygame.Color(black)
 color = color_inactive
 active = False
 text = ''
-font_input = pygame.font.Font(path, 45)
+font_input = pygame.font.Font(font_path, 45)
 txt_surface = font_input.render(text, True, color)
 
 
@@ -196,14 +195,23 @@ no_button_rect = pygame.Rect(create_multi_menu_rect.right - 380, create_multi_me
 
 start_button_rect = pygame.Rect(solo_play_menu_rect.left + 15, solo_play_menu_rect.centery - main_menu_button_height//2, main_menu_button_width, main_menu_button_height)
 
-signup_button = pygame.Rect(login_signup_menu_center_x + 25, login_signup_menu_center_y - 30, 100, 60)
-login_button = pygame.Rect(login_signup_menu_center_x - 125, login_signup_menu_center_y - 30, 100, 60)
+login_button_width, login_button_height = 160, 80
+signup_button_width, signup_button_height = 160, 80
 
-signup_confirm_button = pygame.Rect(start_x, signup_close_button_center_y, 100, 30)
-signup_close_button = pygame.Rect(start_x + 100 + 10, signup_close_button_center_y, 100, 30)
+login_button = pygame.Rect(0, 0, login_button_width, login_button_height) 
+signup_button = pygame.Rect(0, 0, signup_button_width, signup_button_height) 
 
-login_confirm_button = pygame.Rect(start_x, login_close_button_center_y, 100, 30)
-login_close_button = pygame.Rect(start_x + 100 + 10, login_close_button_center_y, 100, 30)
+button_spacing = 50
+half_total_width = (login_button.width + signup_button.width + button_spacing) // 2
+
+login_button.topleft = ((screen_width // 2) - half_total_width, login_signup_menu_center_y - 30)
+signup_button.topleft = ((screen_width // 2) + button_spacing, login_signup_menu_center_y - 30)
+
+signup_confirm_button = pygame.Rect(start_x, signup_close_button_center_y, 120, 40)
+signup_close_button = pygame.Rect(start_x + 120 + 20, signup_close_button_center_y, 120, 40)
+
+login_confirm_button = pygame.Rect(start_x, login_close_button_center_y, 120, 40)
+login_close_button = pygame.Rect(start_x + 120 + 20, login_close_button_center_y, 120, 40)
 
 menu_button_rect = pygame.Rect((screen_width - 150) // 2, (screen_height - esc_menu_size[1]) + 330, 180, 60)
 exit_button_rect = pygame.Rect((screen_width - 150) // 2, (screen_height - esc_menu_size[1]) + 400, 180, 60)
@@ -223,6 +231,60 @@ music_data = [
 original_note_data = []
 
 music_result = {} 
+
+warning_activation_times = {
+    "signup_invalid_input": None,
+    "login_invalid_input": None,
+    "user_exists": None,
+    "password_mismatch": None,
+    "login_failure": None
+}
+
+def activate_warning(warning_name):
+    global warning_activation_times, signup_invalid_input_warning, login_invalid_input_warning, user_exists_warning, password_mismatch_warning, login_failure_warning
+    warning_activation_times[warning_name] = pygame.time.get_ticks()
+    
+    if warning_name == "login_failure":
+        login_failure_warning = True
+
+    elif warning_name == "signup_invalid_input":
+        signup_invalid_input_warning = True
+    
+    elif warning_name == "login_invalid_input":
+        login_invalid_input_warning = True
+    
+    elif warning_name == "user_exists":
+        user_exists_warning = True
+    
+    elif warning_name == "password_mismatch":
+        password_mismatch_warning = True
+
+def deactivate_warnings_after_delay():
+    current_time = pygame.time.get_ticks()
+    for warning, activation_time in warning_activation_times.items():
+        if activation_time and (current_time - activation_time) >= 2000:
+            if warning == "signup_invalid_input":
+                global signup_invalid_input_warning
+                signup_invalid_input_warning = False
+
+            elif warning == "login_invalid_input":
+                global login_invalid_input_warning
+                login_invalid_input_warning = False
+
+            elif warning == "user_exists":
+                global user_exists_warning
+                user_exists_warning = False
+
+            elif warning == "password_mismatch":
+                global password_mismatch_warning
+                password_mismatch_warning = False
+
+            elif warning == "login_failure":
+                global login_failure_warning
+                login_failure_warning = False
+
+            warning_activation_times[warning] = None
+
 
 #========== 로그인 & 회원가입 파일 입출력 ==========
 def user_exists(username):
@@ -251,17 +313,20 @@ def save_user(username, password):
     users[username] = password
     with open(data_file, 'w') as f:
         json.dump(users, f)
-
+        
 #========== 로그인 & 회원가입 입력 ==========
 class InputBox:
     def __init__(self, x, y, w, h, text='', password_mode=False):
         self.rect = pygame.Rect(x, y, w, h)
         self.color = black
         self.text = text
-        self.font = pygame.font.Font(path, 20)
+        self.font = pygame.font.Font(font_path, 30)
         self.txt_surface = self.font.render(text, True, black)
         self.active = False
         self.password_mode = password_mode
+        self.cursor_visible = True  
+        self.last_cursor_switch_time = pygame.time.get_ticks()  
+        self.cursor_interval = 500  
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -276,7 +341,6 @@ class InputBox:
                 self.text += event.unicode
             self.txt_surface = self.font.render(self.text, True, black)
 
-
     def draw(self, screen):
         display_text = self.text if not self.password_mode else '*' * len(self.text)
         self.txt_surface = self.font.render(display_text, True, black)
@@ -284,7 +348,17 @@ class InputBox:
         pygame.draw.rect(screen, white, self.rect.inflate(-2, -2))
         pygame.draw.rect(screen, black, self.rect, 2)
         screen.blit(self.txt_surface, (self.rect.x + 5, self.rect.y + 5))
-    
+        if self.active:
+            if self.cursor_visible:
+                cx = self.rect.x + self.txt_surface.get_width() + 5
+                cy = self.rect.y + 5
+                h = self.font.get_height()
+                pygame.draw.line(screen, black, (cx, cy), (cx, cy+h-2), 2)
+            current_time = pygame.time.get_ticks()
+            if current_time - self.last_cursor_switch_time > self.cursor_interval:
+                self.cursor_visible = not self.cursor_visible
+                self.last_cursor_switch_time = current_time
+
     def clear_text(self):
         self.text = ''
 
@@ -292,28 +366,28 @@ class InputBox:
 def is_valid_string(s):
     return s.isalnum() 
 
-
 #========== 로그인 & 회원가입 입력 칸 ==========
-signup_user_input = InputBox(login_signup_menu_center_x - 100, login_signup_menu_center_y - 90, 200, 30)
-signup_pwd_input = InputBox(login_signup_menu_center_x - 100, login_signup_menu_center_y - 10, 200, 30, password_mode=True)
-signup_confirm_input = InputBox(login_signup_menu_center_x - 100, login_signup_menu_center_y + 70, 200, 30, password_mode=True)
+input_box_width = 220  
+signup_user_input = InputBox((screen_width - input_box_width) // 2, login_signup_menu_center_y - 130, 220, 40)
+signup_pwd_input = InputBox((screen_width - input_box_width) // 2, login_signup_menu_center_y - 50, 220, 40, password_mode=True)
+signup_confirm_input = InputBox((screen_width - input_box_width) // 2, login_signup_menu_center_y + 30, 220, 40, password_mode=True)
 
-login_user_input = InputBox(login_signup_menu_center_x - 100, login_signup_menu_center_y - 90, 200, 30)
-login_pwd_input = InputBox(login_signup_menu_center_x - 100, login_signup_menu_center_y - 10, 200, 30, password_mode=True)
+login_user_input = InputBox((screen_width - input_box_width) // 2, login_signup_menu_center_y - 90, 220, 40)
+login_pwd_input = InputBox((screen_width - input_box_width) // 2, login_signup_menu_center_y - 10, 220, 40, password_mode=True)
 
 #========== 로그인 & 회원 가입 경고 메세지 초기화 ==========
 def reset_warnings():
-    global invalid_input_warning, user_exists_warning, password_mismatch_warning, login_failure_warning
+    global signup_invalid_input_warning, login_invalid_input_warning, user_exists_warning, password_mismatch_warning, login_failure_warning
     signup_invalid_input_warning = False
-    login_invalid_input_warning - False
     user_exists_warning = False
     password_mismatch_warning = False
     login_failure_warning = False
+    login_invalid_input_warning = False
 
 #========== 로그인 & 회원가입 버튼 ==========
-def login_signup_draw_button(screen, button_rect, text, font_path, font_size=20):
+def login_signup_draw_button(screen, button_rect, text, font_path, font_size=35):
     pygame.draw.rect(screen, white, button_rect)
-    pygame.draw.rect(screen, black, button_rect, 4)
+    pygame.draw.rect(screen, black, button_rect, 6)
     
     font = pygame.font.Font(font_path, font_size)
     rendered_text = font.render(text, True, black)
@@ -341,19 +415,20 @@ def draw_button2(text, x, y, width, height, is_pressed):
 #========== 로그인 & 화원가입 화면 ==========
 def login_signup_menu():
     screen.fill(login_signup_menu_color)
-    font = pygame.font.Font(path, 20)
 
     pygame.draw.rect(screen, login_signup_menu_color, login_signup_menu_rect)
     pygame.draw.rect(screen, black, login_signup_menu_rect, 4)
 
-    login_signup_draw_button(screen, signup_button, "회원가입", path)
-    login_signup_draw_button(screen, login_button, "로그인", path)
+    login_signup_draw_button(screen, signup_button, "회원가입", font_path)
+    login_signup_draw_button(screen, login_button, "로그인", font_path)
+
 
 #========== 로그인 화면 ==========
 def login():
+    global login_invalid_input_warning, login_failure_warning
     pygame.draw.rect(screen, login_signup_menu_color, login_signup_menu_rect)
     pygame.draw.rect(screen, black, login_signup_menu_rect, 4)
-    label_font = pygame.font.Font(path, 25)
+    label_font = pygame.font.Font(font_path, 25)
     labels = ['아이디', '비밀번호']
     for index, label in enumerate(labels):
         rendered_label = label_font.render(label, True, black)
@@ -363,22 +438,22 @@ def login():
     login_pwd_input.draw(screen)
 
     if login_invalid_input_warning:
-        warning_font = pygame.font.Font(path, 20)
+        warning_font = pygame.font.Font(font_path, 20)
         warning_msg = warning_font.render("영어와 숫자만 사용하세요.", True, (255, 0, 0))
         screen.blit(warning_msg, (login_signup_menu_center_x - (warning_msg.get_width() // 2), login_signup_menu_center_y + 40))
 
     if login_failure_warning:
-        warning_font = pygame.font.Font(path, 20)
+        warning_font = pygame.font.Font(font_path, 20)
         warning_msg = warning_font.render("아이디 또는 비밀번호가 잘못되었습니다.", True, (255, 0, 0))
-        screen.blit(warning_msg, (login_signup_menu_center_x - (warning_msg.get_width() // 2), login_signup_menu_center_y + 30))
+        screen.blit(warning_msg, (login_signup_menu_center_x - (warning_msg.get_width() // 2), login_signup_menu_center_y + 40))
 
-    ok_font = pygame.font.Font(path, 25)
+    ok_font = pygame.font.Font(font_path, 25)
     pygame.draw.rect(screen, white, login_confirm_button)
     pygame.draw.rect(screen, black, login_confirm_button, 2)
     confirm_text = ok_font.render("확인", True, black)
     screen.blit(confirm_text, (login_confirm_button.x + (login_confirm_button.width - confirm_text.get_width()) // 2, login_confirm_button.y + (login_confirm_button.height - confirm_text.get_height()) // 2))
 
-    close_font = pygame.font.Font(path, 25)
+    close_font = pygame.font.Font(font_path, 25)
     pygame.draw.rect(screen, white, login_close_button)
     pygame.draw.rect(screen, black, login_close_button, 2)
     close_text = close_font.render("닫기", True, black)
@@ -386,41 +461,43 @@ def login():
 
 #========== 회원가입 화면 ==========
 def signup():
+    global user_exists_warning, password_mismatch_warning,signup_invalid_input_warning
+
     pygame.draw.rect(screen, login_signup_menu_color, login_signup_menu_rect)
     pygame.draw.rect(screen, black, login_signup_menu_rect, 4)
-    label_font = pygame.font.Font(path, 25)
+    label_font = pygame.font.Font(font_path, 25)
 
     labels = ['아이디', '비밀번호', '비밀번호 확인']
     for index, label in enumerate(labels):
         rendered_label = label_font.render(label, True, black)
-        screen.blit(rendered_label, (signup_user_input.rect.x, login_signup_menu_center_y - 120 + index * 80))
+        screen.blit(rendered_label, (signup_user_input.rect.x, login_signup_menu_center_y - 160 + index * 80))
 
     signup_user_input.draw(screen)
     signup_pwd_input.draw(screen)
     signup_confirm_input.draw(screen)
 
     if signup_invalid_input_warning:
-        warning_font = pygame.font.Font(path, 20)
+        warning_font = pygame.font.Font(font_path, 20)
         warning_msg = warning_font.render("영어와 숫자만 사용하세요.", True, (255, 0, 0))
-        screen.blit(warning_msg, (login_signup_menu_center_x - (warning_msg.get_width() // 2), login_signup_menu_center_y + 160))
+        screen.blit(warning_msg, (login_signup_menu_center_x - (warning_msg.get_width() // 2), login_signup_menu_center_y + 80))
 
     if user_exists_warning:
-        warning_font = pygame.font.Font(path, 20)
+        warning_font = pygame.font.Font(font_path, 20)
         warning_msg = warning_font.render("이미 있는 아이디 입니다.", True, (255, 0, 0))
-        screen.blit(warning_msg, (login_signup_menu_center_x - (warning_msg.get_width() // 2), login_signup_menu_center_y - 60))
+        screen.blit(warning_msg, (login_signup_menu_center_x - (warning_msg.get_width() // 2), login_signup_menu_center_y + 80))
 
     if password_mismatch_warning:
-        warning_font = pygame.font.Font(path, 20)
+        warning_font = pygame.font.Font(font_path, 20)
         warning_msg = warning_font.render("비밀번호가 일치하지 않습니다.", True, (255, 0, 0))
-        screen.blit(warning_msg, (login_signup_menu_center_x - (warning_msg.get_width() // 2), login_signup_menu_center_y + 105))
+        screen.blit(warning_msg, (login_signup_menu_center_x - (warning_msg.get_width() // 2), login_signup_menu_center_y + 80))
 
-    ok_font = pygame.font.Font(path, 25)
+    ok_font = pygame.font.Font(font_path, 25)
     pygame.draw.rect(screen, white, signup_confirm_button)
     pygame.draw.rect(screen, black, signup_confirm_button, 2)
     confirm_text = ok_font.render("확인", True, black)
     screen.blit(confirm_text, (signup_confirm_button.x + (signup_confirm_button.width - confirm_text.get_width()) // 2, signup_confirm_button.y + (signup_confirm_button.height - confirm_text.get_height()) // 2))
 
-    close_font = pygame.font.Font(path, 25)
+    close_font = pygame.font.Font(font_path, 25)
     pygame.draw.rect(screen, white, signup_close_button)
     pygame.draw.rect(screen, black, signup_close_button, 2)
     close_text = close_font.render("닫기", True, black)
@@ -438,7 +515,7 @@ def esc_menu():
     pygame.draw.rect(screen, esc_menu_color, esc_menu_rect)
     pygame.draw.rect(screen, white, menu_button_rect)  
     pygame.draw.rect(screen, black, menu_button_rect, 8)  
-    font = pygame.font.Font(path, 36)
+    font = pygame.font.Font(font_path, 36)
     text = font.render("메뉴 가기", True, black)
     text_rect = text.get_rect(center=menu_button_rect.center)
     screen.blit(text, text_rect)
@@ -452,19 +529,17 @@ def esc_menu():
 #========== 메인화면에서 esc 화면 ==========
 def main_menu_esc_menu():
     pygame.draw.rect(screen, esc_menu_color, esc_menu_rect)
-    font = pygame.font.Font(path, 36)
+    font = pygame.font.Font(font_path, 36)
     pygame.draw.rect(screen, white, exit_button_rect) 
     pygame.draw.rect(screen, black, exit_button_rect, 8)  
     text = font.render("게임 종료", True, black)
     text_rect = text.get_rect(center=exit_button_rect.center)
     screen.blit(text, text_rect)
 
-    
-
 #========== 접속 아이디 표시 ==========
 def display_logged_in_user(screen):
     if logged_in_user:
-        font = pygame.font.Font(path, 30)
+        font = pygame.font.Font(font_path, 30)
         text_surface = font.render("접속 아이디: [ " + logged_in_user + " ]", True, black)
         screen.blit(text_surface, (10, 15))
 
@@ -476,7 +551,7 @@ def blit_text_centered(surface, text_surface, rect):
 #========== 솔로 플레이 화면 ==========
 def solo_play_menu():
     pygame.draw.rect(screen, solo_play_menu_color, solo_play_menu_rect)
-    font = pygame.font.Font(path2, 50)  
+    font = pygame.font.Font(font_path2, 50)  
     text_surface = font.render("START", True, black)  
     text_rect = text_surface.get_rect()
     text_rect.midleft = (solo_play_menu_rect.left + 15, solo_play_menu_rect.centery)  
@@ -492,7 +567,7 @@ def solo_play_menu():
     pygame.draw.circle(screen, white, circle_center, radius2) 
     pygame.draw.circle(screen, black, circle_center, radius2, 6) 
 
-    info_font = pygame.font.Font(path, 35)
+    info_font = pygame.font.Font(font_path, 35)
     rect_width = 230
     rect_height = 90
     rect_thickness = 5
@@ -542,13 +617,13 @@ def solo_play_menu():
     blit_text_centered(screen, middle2_info_surface, rect_middle2)
     blit_text_centered(screen, bottom_info_surface, rect_bottom)
 
-    music_detail_font = pygame.font.Font(path, 25)
+    music_detail_font = pygame.font.Font(font_path, 25)
     music_detail_surface = music_detail_font.render(music_data[(current_index + 2) % len(music_data)]["music_detail"], True, black)
     
     music_detail_rect = music_detail_surface.get_rect(topleft=(solo_play_muisc_menu_rect.left + 15, solo_play_muisc_menu_rect.top + 10))
     screen.blit(music_detail_surface, music_detail_rect.topleft)
 
-    result_font = pygame.font.Font(path, 25)
+    result_font = pygame.font.Font(font_path, 25)
     song_title = music_data[(current_index + 2) % len(music_data)]["title"]
     
     if song_title in music_result:
@@ -574,7 +649,7 @@ def draw_multi_background():
     pygame.draw.rect(screen, list_background_color, list_background_rect)
     pygame.draw.rect(screen, black, list_background_rect, 4)
 
-    font_small = pygame.font.Font(path, 50)
+    font_small = pygame.font.Font(font_path, 50)
     text = font_small.render("방 목록", True, black)
     text_rect = text.get_rect(center=(multi_background_rect.centerx, multi_background_rect.top + 60))
     screen.blit(text, text_rect)    
@@ -591,7 +666,7 @@ def reate_multi_menu_buttons():
 
 #========== 멀티 플레이 방만들기 ==========
 def multi_menu():
-    label_font = pygame.font.Font(path, 50)
+    label_font = pygame.font.Font(font_path, 50)
     label_text = label_font.render("방 이름", True, black)
     label_rect = label_text.get_rect(right=input_box.left - 10, centery=input_box.centery)
     create_multi_menu()
@@ -620,7 +695,7 @@ def close_button():
 #========== 멀티 플레이 로딩 화면 ==========
 def loading_screen():
     pygame.draw.rect(screen, loading_screen_color, loading_screen_rect)
-    font = pygame.font.Font(path, 40)
+    font = pygame.font.Font(font_path, 40)
     text_surface = font.render("상대방을 기다리는 중", True, black)
     text_rect = text_surface.get_rect(center=loading_screen_rect.center)
     screen.blit(text_surface, text_rect)
@@ -631,15 +706,15 @@ def solo_run_game():
     global current_game_state, combo, player_hp 
 
     button_font_size = 50
-    button_font = pygame.font.Font(path, button_font_size)
+    button_font = pygame.font.Font(font_path, button_font_size)
 
     hp_label_font = pygame.font.Font(None, 40)
     hp_label_text = hp_label_font.render("MY.HP", True, black)
     hp_label_rect = hp_label_text.get_rect(right=screen_width-270, top=180)
 
-    combo_font = pygame.font.Font(path, 40)
+    combo_font = pygame.font.Font(font_path, 40)
     combo_number_font_size = 80
-    combo_number_font = pygame.font.Font(path, combo_number_font_size)
+    combo_number_font = pygame.font.Font(font_path, combo_number_font_size)
 
     score = 0
     max_combo = 0
@@ -761,14 +836,14 @@ def solo_run_game():
             note_data.remove(note)
 
     def draw_retry_button():
-        font_retry = pygame.font.Font(path, 50)
+        font_retry = pygame.font.Font(font_path, 50)
         pygame.draw.rect(screen, white, retry_button_rect)
         text = font_retry.render("다시 하기", True, black)
         text_rect = text.get_rect(center=retry_button_rect.center)
         screen.blit(text, text_rect)
 
     def draw_menu_button():
-        font_menu = pygame.font.Font(path, 50)
+        font_menu = pygame.font.Font(font_path, 50)
         pygame.draw.rect(screen, white, menu_button_rect)
         text = font_menu.render('메뉴 가기', True, black)
         text_rect = text.get_rect(center=menu_button_rect.center)
@@ -789,11 +864,11 @@ def solo_run_game():
     def draw_win_screen():
         screen.fill(white)
         
-        score_font = pygame.font.Font(path, 70)
+        score_font = pygame.font.Font(font_path, 70)
         score_text = score_font.render(f"Score: {score}", True, black)
         score_rect = score_text.get_rect(center=(screen_width // 2, 300))
 
-        combo_font = pygame.font.Font(path, 70)
+        combo_font = pygame.font.Font(font_path, 70)
         combo_text = combo_font.render(f"Max Combo: {max_combo}", True, black)
         combo_rect = combo_text.get_rect(center=(screen_width // 2, score_rect.bottom + 50))
 
@@ -816,15 +891,15 @@ def solo_run_game():
     
     def draw_game_over_screen():
         screen.fill(white)
-        game_over_font = pygame.font.Font(path, 100)
+        game_over_font = pygame.font.Font(font_path, 100)
         game_over_text = game_over_font.render("Game Over", True, black)
         text_rect = game_over_text.get_rect(center=(screen_width // 2, screen_height - 600))
 
-        score_font = pygame.font.Font(path, 70)
+        score_font = pygame.font.Font(font_path, 70)
         score_text = score_font.render(f"Score: {score}", True, black)
         score_rect = score_text.get_rect(center=(screen_width // 2, 300))
 
-        combo_font = pygame.font.Font(path, 70)
+        combo_font = pygame.font.Font(font_path, 70)
         combo_text = combo_font.render(f"Max Combo: {max_combo}", True, black)
         combo_rect = combo_text.get_rect(center=(screen_width // 2, score_rect.bottom + 45))
 
@@ -849,11 +924,11 @@ def solo_run_game():
         pygame.draw.rect(screen, white, (score_box_x, score_box_y, score_box_width, score_box_height))
         pygame.draw.rect(screen, black, (score_box_x, score_box_y, score_box_width, score_box_height), 8)
 
-        score_label_font = pygame.font.Font(path, 30)
+        score_label_font = pygame.font.Font(font_path, 30)
         score_label_text = score_label_font.render("Score", True, black)
         score_label_rect = score_label_text.get_rect(midbottom=(score_box_x+45, score_box_y))
         screen.blit(score_label_text, score_label_rect)
-        score_font = pygame.font.Font(path, 50)
+        score_font = pygame.font.Font(font_path, 50)
         score_text = score_font.render(f"{score}", True, black)
         score_rect = score_text.get_rect(midright=(score_box_x + score_box_width - 20, score_box_y + (score_box_height // 2)))
         screen.blit(score_text, score_rect)
@@ -869,12 +944,12 @@ def solo_run_game():
 
     def draw_pause_screen():
         screen.fill(white)
-        pause_font = pygame.font.Font(path, 70)
+        pause_font = pygame.font.Font(font_path, 70)
         pause_text = pause_font.render("ESC키를 눌러 게임을 이어하기", True, black)
         text_rect = pause_text.get_rect(center=(screen_width // 2, screen_height // 2 - 100))
         screen.blit(pause_text, text_rect)
         
-        button_font = pygame.font.Font(path, 50)
+        button_font = pygame.font.Font(font_path, 50)
         retry_button_text = button_font.render("다시하기", True, black)
         exit_button_text = button_font.render("나가기", True, black)
         
@@ -1079,6 +1154,7 @@ def solo_run_game():
 
 #========== 메인 루트 ==========
 while True:
+    deactivate_warnings_after_delay()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -1158,37 +1234,27 @@ while True:
 
             elif current_game_state == GameState.SIGNUP and signup_confirm_button.collidepoint(event.pos):
                 if not is_valid_string(signup_user_input.text) or not is_valid_string(signup_pwd_input.text):
-                    signuo_invalid_input_warning = True
-
+                    activate_warning("signup_invalid_input")
                 elif user_exists(signup_user_input.text):
-                    user_exists_warning = True
-                    print("이미 있는 아이디 입니다.")
-
+                    activate_warning("user_exists")
                 else:
-                    if signup_pwd_input.text == signup_confirm_input.text:
+                    if signup_pwd_input.text != signup_confirm_input.text:
+                        activate_warning("password_mismatch")
+                    else:
                         save_user(signup_user_input.text, signup_pwd_input.text)
-                        user_exists_warning = False
-                        password_mismatch_warning = False
                         print("회원가입 성공!")
                         current_game_state = GameState.LOGIN_SIGNUP
 
-                    else:
-                        password_mismatch_warning = True
-                        print("비밀번호가 일치하지 않습니다.")
-
             elif current_game_state == GameState.LOGIN and login_confirm_button.collidepoint(event.pos):
                 if not is_valid_string(login_user_input.text) or not is_valid_string(login_pwd_input.text):
-                    login_invalid_input_warning = True
-                elif verify_login(login_user_input.text, login_pwd_input.text):
-                    logged_in_user = login_user_input.text  
+                    activate_warning("login_invalid_input")
+                elif not verify_login(login_user_input.text, login_pwd_input.text):
+                    activate_warning("login_failure")
+                else:
+                    logged_in_user = login_user_input.text
                     login_successful = True
-                    login_failure_warning = False
-                    screen.fill(white)
                     print("로그인 성공!")
                     current_game_state = GameState.SOLO_PLAY
-                else:
-                    login_failure_warning = True
-                    print("로그인 실패!")
                     
             
             elif current_game_state == GameState.MULTI_PLAY:
@@ -1282,36 +1348,27 @@ while True:
             if event.type == pygame.KEYDOWN:
                 if current_game_state == GameState.SIGNUP and event.key == pygame.K_RETURN:
                     if not is_valid_string(signup_user_input.text) or not is_valid_string(signup_pwd_input.text):
-                        signup_invalid_input_warning = True
+                        activate_warning("signup_invalid_input")
                     elif user_exists(signup_user_input.text):
-                        user_exists_warning = True
-                        print("이미 있는 아이디 입니다.")
+                        activate_warning("user_exists")
                     else:
-                        if signup_pwd_input.text == signup_confirm_input.text:
+                        if signup_pwd_input.text != signup_confirm_input.text:
+                            activate_warning("password_mismatch")
+                        else:
                             save_user(signup_user_input.text, signup_pwd_input.text)
-                            user_exists_warning = False
-                            password_mismatch_warning = False
                             print("회원가입 성공!")
                             current_game_state = GameState.LOGIN_SIGNUP
-                        else:
-                            password_mismatch_warning = True
-                            print("비밀번호가 일치하지 않습니다.")
 
                 elif current_game_state == GameState.LOGIN and event.key == pygame.K_RETURN:
                     if not is_valid_string(login_user_input.text) or not is_valid_string(login_pwd_input.text):
-                        login_invalid_input_warning = True
-
-                    elif verify_login(login_user_input.text, login_pwd_input.text):
-                        logged_in_user = login_user_input.text  
+                        activate_warning("login_invalid_input")
+                    elif not verify_login(login_user_input.text, login_pwd_input.text):
+                        activate_warning("login_failure")
+                    else:
+                        logged_in_user = login_user_input.text
                         login_successful = True
-                        login_failure_warning = False
-                        screen.fill(white)
                         print("로그인 성공!")
                         current_game_state = GameState.SOLO_PLAY
-
-                    else:
-                        login_failure_warning = True
-                        print("로그인 실패!")
 
 
     if current_game_state == GameState.MAIN_MENU:
