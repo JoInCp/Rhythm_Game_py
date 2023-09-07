@@ -1193,14 +1193,16 @@ def solo_run_game():
                                     note_data.remove(note)
 
                             elif y_position_top == hit_top_line or y_position_bottom == hit_top_line or (y_position_top < hit_top_line and y_position_bottom > hit_top_line):
-                                    draw_hit_result_label("Miss")
-                                    combo = 0
-                                    note_data.remove(note)
+                                    if lane == button_data.index(button):
+                                        draw_hit_result_label("Miss")
+                                        combo = 0
+                                        note_data.remove(note)
 
                             elif (y_position_bottom >= hit_bottom_line and y_position_top <= hit_bottom_line) or (y_position_top >= hit_top_line and y_position_bottom <= hit_top_line):
-                                    draw_hit_result_label("Miss")
-                                    combo = 0
-                                    note_data.remove(note)
+                                    if lane == button_data.index(button):
+                                        draw_hit_result_label("Miss")
+                                        combo = 0
+                                        note_data.remove(note)
 
                             elif y_position > rect_y + rect_height:
                                 if lane == button_data.index(button):
