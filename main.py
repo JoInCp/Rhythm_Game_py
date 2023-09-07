@@ -8,17 +8,14 @@ import time
 from enum import Enum, auto
 
 
-# ========== 초기 설정 ==========
+#========== 초기 설정 ==========
 pygame.init()
-
-
-# ========== 화면 설정 ==========
 screen_width = 1000
 screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 
-# ========== 게임 상태 ==========
+#========== 게임 상태 ==========
 class GameState(Enum):
     MAIN_MENU = auto()
     SOLO_PLAY = auto()
@@ -36,27 +33,26 @@ class GameState(Enum):
 current_game_state = GameState.MAIN_MENU
 
 
-# ========== 미디어 리소스 로드 ==========
-# 메인 화면 이미지
+#========== 메인 화면 이미지 ==========
 image_path = "images//main.jpg"
 image = pygame.image.load(image_path)
 image_rect = image.get_rect(center=(screen_width // 2.5, screen_height // 2))
 
 
-# 배경 음악
+#========== 배경 음악 ==========
 main_menu_music_path = "sounds//background_music.mp3"
 pygame.mixer.music.load(main_menu_music_path)
 pygame.mixer.music.set_volume(0.1)
 pygame.mixer.music.play(-1)
 
 
-# 클릭 사운드
+#========== 클릭 사운드 ==========
 click_sound_path = "sounds//switch.mp3"
 click_sound = pygame.mixer.Sound(click_sound_path)
 click_sound.set_volume(0.2)
 
 
-# ========== 폰트 및 색상 설정 ==========
+#========== 폰트 및 색상 설정 ==========
 font_path = "font//KBO Dia Gothic_medium.ttf"
 font_path2 = "font//MBC 1961 M.ttf"
 data_file = "users.json"
@@ -398,7 +394,6 @@ warning_activation_times = {
     "password_mismatch": None,
     "login_failure": None
 }
-
 
 #========== 로그인 & 회원가입 입력 칸 ==========
 input_box_width = 220  
@@ -1025,6 +1020,7 @@ def solo_run_game():
                     game_paused = not game_paused
                     if game_paused:
                         pause_start_time = pygame.time.get_ticks()
+
                     else:
                         total_pause_duration += pygame.time.get_ticks() - pause_start_time
 
@@ -1055,6 +1051,7 @@ def solo_run_game():
                                         note["start_time"] = pygame.time.get_ticks() + note["note_start_delays"]
                                         note["number"] = initial_position_outside_screen
                                         note["hit"] = False
+
                                 elif exit_button_rect.collidepoint(mouse_pos):
                                     running = False
                                     game_paused = False
@@ -1255,6 +1252,7 @@ while True:
                     current_index += 1
                     if current_index > 7:
                         current_index = 0
+
                 elif event.button == 5:
                     current_index -= 1
                     if current_index < 0:
@@ -1266,6 +1264,7 @@ while True:
                     if not is_sound_played:
                         click_sound.play()
                         is_sound_played = True
+
                 elif multi_button_rect.collidepoint(event.pos):
                     current_game_state = GameState.MULTI_PLAY
                     if not is_sound_played:
@@ -1276,6 +1275,7 @@ while True:
             elif current_game_state == GameState.ESC:
                 if menu_button_rect.collidepoint(event.pos):
                     current_game_state = GameState.MAIN_MENU
+
                 elif exit_button_rect.collidepoint(event.pos):
                     pygame.quit()
                     sys.exit()
@@ -1288,8 +1288,10 @@ while True:
             elif current_game_state == GameState.LOGIN_SIGNUP:
                 if signup_button.collidepoint(event.pos):
                     current_game_state = GameState.SIGNUP
+
                 elif login_button.collidepoint(event.pos):
                     current_game_state = GameState.LOGIN
+
                 if close_button_rect.collidepoint(event.pos):
                     current_game_state = GameState.MAIN_MENU
                     continue
@@ -1308,8 +1310,10 @@ while True:
             elif current_game_state == GameState.SIGNUP and signup_confirm_button.collidepoint(event.pos):
                 if not is_valid_string(signup_user_input.text) or not is_valid_string(signup_pwd_input.text):
                     activate_warning("signup_invalid_input")
+
                 elif user_exists(signup_user_input.text):
                     activate_warning("user_exists")
+
                 else:
                     if signup_pwd_input.text != signup_confirm_input.text:
                         activate_warning("password_mismatch")
@@ -1324,8 +1328,10 @@ while True:
             elif current_game_state == GameState.LOGIN and login_confirm_button.collidepoint(event.pos):
                 if not is_valid_string(login_user_input.text) or not is_valid_string(login_pwd_input.text):
                     activate_warning("login_invalid_input")
+
                 elif not verify_login(login_user_input.text, login_pwd_input.text):
                     activate_warning("login_failure")
+
                 else:
                     logged_in_user = login_user_input.text
                     login_successful = True
@@ -1335,16 +1341,20 @@ while True:
                     current_game_state = GameState.SOLO_PLAY
 
         #========== 키 이벤트 처리 ==========
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN: 
             if event.key == pygame.K_ESCAPE:
                 if current_game_state != GameState.ESC:
                     prev_game_state = current_game_state
+            
                     if current_game_state == GameState.MAIN_MENU:
                         current_game_state = GameState.MAIN_MENU_ESC
+            
                     elif current_game_state == GameState.MAIN_MENU_ESC:
                         current_game_state = GameState.MAIN_MENU
+                   
                     elif current_game_state != GameState.MAIN_MENU:
                         current_game_state = GameState.ESC
+            
                 else:
                     if prev_game_state is not None:
                         current_game_state = prev_game_state
@@ -1353,8 +1363,10 @@ while True:
             if current_game_state == GameState.SIGNUP and event.key == pygame.K_RETURN:
                 if not is_valid_string(signup_user_input.text) or not is_valid_string(signup_pwd_input.text):
                     activate_warning("signup_invalid_input")
+
                 elif user_exists(signup_user_input.text):
                     activate_warning("user_exists")
+
                 else:
                     if signup_pwd_input.text != signup_confirm_input.text:
                         activate_warning("password_mismatch")
@@ -1369,8 +1381,10 @@ while True:
             elif current_game_state == GameState.LOGIN and event.key == pygame.K_RETURN:
                 if not is_valid_string(login_user_input.text) or not is_valid_string(login_pwd_input.text):
                     activate_warning("login_invalid_input")
+
                 elif not verify_login(login_user_input.text, login_pwd_input.text):
                     activate_warning("login_failure")
+
                 else:
                     logged_in_user = login_user_input.text
                     login_successful = True
@@ -1380,6 +1394,7 @@ while True:
                     current_game_state = GameState.SOLO_PLAY
 
         if event.type == pygame.MOUSEBUTTONDOWN and current_game_state == GameState.SOLO_PLAY:
+
             if start_button_rect.collidepoint(event.pos):
                 music_list_value = music_data[(current_index + 2) % len(music_data)]["music_list"]
                 song_file_path = music_data[(current_index + 2) % len(music_data)]["sound_file"]
@@ -1397,6 +1412,7 @@ while True:
             if current_game_state == GameState.CREATE:
                 if event.key == pygame.K_RETURN:
                     current_game_state = GameState.LOADING
+
                 elif event.key == pygame.K_BACKSPACE:
                     text = text[:-1]
                     txt_surface = font_input.render(text, True, black)
@@ -1406,10 +1422,12 @@ while True:
                     current_index += 1
                     if current_index > 7:
                         current_index = 0
+
                 elif event.key == pygame.K_DOWN:
                     current_index -= 1
                     if current_index < 0:
                         current_index = 7
+
                 elif event.key == pygame.K_RETURN:
                     music_list_value = music_data[(current_index + 2) % len(music_data)]["music_list"]
                     song_file_path = music_data[(current_index + 2) % len(music_data)]["sound_file"]
