@@ -1176,22 +1176,7 @@ def solo_run_game():
                                     if combo % 20 == 0 and combo != 0:
                                         score += 20
                                     note_data.remove(note)
-
-                            elif y_position_top <= hit_middle_line and y_position_bottom >= hit_middle_line:
-                                if lane == button_data.index(button):
-                                    draw_hit_result_label("Great")
-                                    combo += 1
-                                    score += 20
-                                    if combo % 5 == 0 and combo != 0:
-                                        score += 5
-
-                                    if combo % 10 == 0 and combo != 0:
-                                        score += 10
-
-                                    if combo % 20 == 0 and combo != 0:
-                                        score += 20
-                                    note_data.remove(note)
-
+                                    
                             elif y_position_top == hit_top_line or y_position_bottom == hit_top_line or (y_position_top < hit_top_line and y_position_bottom > hit_top_line):
                                     if lane == button_data.index(button):
                                         draw_hit_result_label("Miss")
