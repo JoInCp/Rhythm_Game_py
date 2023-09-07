@@ -141,8 +141,11 @@ signup_invalid_input_warning = False
 login_invalid_input_warning = False
 prev_game_state = None 
 logged_in_user = None
+hit_result = None
+
 current_game_state = GameState.MAIN_MENU
 
+hit_result_start_time = 0
 
 #========== 노래 정보 ==========
 music_data = [
@@ -753,7 +756,6 @@ def solo_run_game():
     game_state = "playing"
     running = True
     game_paused = False
-    saved_game_state = None
 
     rect_x = 60
     rect_y = 10
@@ -777,7 +779,10 @@ def solo_run_game():
     button_y_center = rect_height - 132 + 65
 
     check_line = rect_y + rect_height - 150
-    hit_line = rect_y + rect_height - 240
+
+    hit_top_line = rect_y + rect_height - 265
+    hit_middle_line = rect_y + rect_height - 240
+    hit_bottom_line = rect_y + rect_height - 215
 
     score_box_width = 260
     score_box_height = 70
@@ -997,8 +1002,15 @@ def solo_run_game():
         screen.blit(retry_button_text, retry_button_rect)
         screen.blit(exit_button_text, exit_button_rect)
         return retry_button_rect, exit_button_rect
+    
+    def draw_hit_result_label(result):
+        global hit_result, hit_result_start_time
+        hit_result = result
+        hit_result_start_time = pygame.time.get_ticks()
+
 
     while running:
+        global hit_result, hit_result_start_time
         screen.fill(white) 
         draw_hp_bar()
         
@@ -1024,10 +1036,12 @@ def solo_run_game():
                                 running = False
                                 pygame.quit()
                                 sys.exit()
+
                             elif pause_event.type == pygame.KEYDOWN and pause_event.key == pygame.K_ESCAPE:
                                 game_paused = not game_paused
                                 if not game_paused:
                                     total_pause_duration += pygame.time.get_ticks() - pause_start_time
+                                    
                             if pause_event.type == pygame.MOUSEBUTTONDOWN:
                                 mouse_pos = pygame.mouse.get_pos()
                                 if retry_button_rect.collidepoint(mouse_pos):
@@ -1057,7 +1071,7 @@ def solo_run_game():
                         hit_note = False
                         for note in note_data:
                             y_position = note["number"] * note_height
-                            line_y = hit_line
+                            line_y = hit_middle_line
                             if note["lane"] == lane and y_position <= line_y and y_position + note_height >= line_y:
                                 hit_note = True
                                 break
@@ -1094,7 +1108,9 @@ def solo_run_game():
         
         if game_state == "playing":
             pygame.draw.line(screen, black, (rect_x, max(check_line, rect_y)), (rect_x + rect_width-5, max(check_line, rect_y)), 8)
-            pygame.draw.line(screen, black, (rect_x, max(hit_line, rect_y)), (rect_x + rect_width-5, max(hit_line, rect_y)), 8)
+            pygame.draw.line(screen, white, (rect_x, max(hit_top_line, rect_y)), (rect_x + rect_width-5, max(hit_top_line, rect_y)), 2)
+            pygame.draw.line(screen, white, (rect_x, max(hit_middle_line, rect_y)), (rect_x + rect_width-5, max(hit_middle_line, rect_y)), 2)
+            pygame.draw.line(screen, white, (rect_x, max(hit_bottom_line, rect_y)), (rect_x + rect_width-5, max(hit_bottom_line, rect_y)), 2)
 
             if not note_data and player_hp > 0: 
                 game_state = "win"
@@ -1123,34 +1139,69 @@ def solo_run_game():
 
             hit_box()
 
-            for button in button_data:  
-                if button["color"] == white:  
+            for button in button_data:
+                if button["color"] == white:
                     for note in note_data[:]:
                         if note["number"] >= 0:
                             lane = note["lane"]
-                            y_position = note["number"] * note_height
-                            line_y = hit_line
-                            if y_position <= line_y and y_position + note_height >= line_y:
-                                if lane == button_data.index(button):
-                                    score += 10
-                                    combo += 1
-                                    if combo > max_combo:
-                                        max_combo = combo
+                            y_position_top = note["number"] * note_height
+                            y_position_bottom = y_position_top + note_height
 
-                                    if combo % 10 == 0 and combo != 0:
+                            if y_position_top <= hit_top_line and y_position_bottom >= hit_middle_line:
+                                if lane == button_data.index(button):
+                                    draw_hit_result_label("Good")
+                                    combo += 1
+                                    score += 10
+                                    if combo % 5 == 0 and combo != 0:
                                         score += 5
 
-                                    if combo % 50 == 0 and combo != 0:
-                                        score += 15
+                                    if combo % 10 == 0 and combo != 0:
+                                        score += 10
 
-                                    if combo % 100 == 0 and combo != 0:
-                                        score += 30
-
+                                    if combo % 20 == 0 and combo != 0:
+                                        score += 20
                                     note_data.remove(note)
-                                elif y_position >= check_line: 
+                                    
+                            elif y_position_top <= hit_middle_line and y_position_bottom >= hit_bottom_line:
+                                if lane == button_data.index(button):
+                                    draw_hit_result_label("Good")
+                                    combo += 1
+                                    score += 10
+                                    if combo % 5 == 0 and combo != 0:
+                                        score += 5
+
+                                    if combo % 10 == 0 and combo != 0:
+                                        score += 10
+
+                                    if combo % 20 == 0 and combo != 0:
+                                        score += 20
+                                    note_data.remove(note)
+
+                            elif y_position_top <= hit_middle_line and y_position_bottom >= hit_middle_line:
+                                if lane == button_data.index(button):
+                                    draw_hit_result_label("Great")
+                                    combo += 1
+                                    score += 20
+                                    if combo % 5 == 0 and combo != 0:
+                                        score += 5
+
+                                    if combo % 10 == 0 and combo != 0:
+                                        score += 10
+
+                                    if combo % 20 == 0 and combo != 0:
+                                        score += 20
+                                    note_data.remove(note)
+
+                            elif y_position_top == hit_top_line or y_position_bottom == hit_top_line or (y_position_top < hit_top_line and y_position_bottom > hit_top_line):
+                                    draw_hit_result_label("Miss")
                                     combo = 0
                                     note_data.remove(note)
-                                break
+
+                            elif (y_position_bottom >= hit_bottom_line and y_position_top <= hit_bottom_line) or (y_position_top >= hit_top_line and y_position_bottom <= hit_top_line):
+                                    draw_hit_result_label("Miss")
+                                    combo = 0
+                                    note_data.remove(note)
+
                             elif y_position > rect_y + rect_height:
                                 if lane == button_data.index(button):
                                     combo = 0
@@ -1167,7 +1218,17 @@ def solo_run_game():
                 screen.blit(text, text_rect)
 
             play_game_combo_and_score()
-            
+
+            if hit_result:
+                current_time = pygame.time.get_ticks()
+                if current_time - hit_result_start_time <= 1000:
+                    hit_result_font = pygame.font.Font(font_path, 50)
+                    hit_result_text = hit_result_font.render(hit_result, True, black)
+                    hit_result_rect = hit_result_text.get_rect(bottomright=(screen_width-150, screen_height-100))
+                    screen.blit(hit_result_text, hit_result_rect)
+                else:
+                    hit_result = None
+
             pygame.display.flip()
             clock.tick(60)
 
