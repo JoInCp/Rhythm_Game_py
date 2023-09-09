@@ -63,7 +63,7 @@ red = (255, 0, 0)
 
 
 #========== 화면 사이즈 및 색 ==========
-solo_play_menu_color = black
+solo_play_menu_color = white
 solo_play_menu_size = (1000, 800)
 
 solo_play_muisc_menu_color = white
@@ -129,14 +129,21 @@ hit_result_start_time = 0
 
 #========== 노래 정보 ==========
 music_data = [
-    {"number": 0, "title": "테스트1", "music_detail": "테스트 1과 관련된 내용", "music_list": "test1_note_data", "sound_file": "sounds//test.mp3"},
-    {"number": 1, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
-    {"number": 2, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
-    {"number": 3, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
-    {"number": 4, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
-    {"number": 5, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
-    {"number": 6, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
-    {"number": 7, "title": "준비 중", "music_detail": "준비 중", "music_list": "NONE", "sound_file": "NONE"},
+    {"number": 0, "title": "테스트1", "music_start_time": 2, "music_sound": 0.3, "music_list": "test1_note_data", "sound_file": "sounds//test.mp3", "music_detail": "테스트 1과 관련된 내용"},
+
+    {"number": 1, "title": "준비 중", "music_start_time": 0, "music_sound": 0, "music_list": "NONE", "sound_file": "NONE", "music_detail": "준비 중"},
+
+    {"number": 2, "title": "준비 중", "music_start_time": 0, "music_sound": 0, "music_list": "NONE", "sound_file": "NONE", "music_detail": "준비 중"},
+
+    {"number": 3, "title": "준비 중", "music_start_time": 0, "music_sound": 0, "music_list": "NONE", "sound_file": "NONE", "music_detail": "준비 중"},
+
+    {"number": 4, "title": "준비 중", "music_start_time": 0, "music_sound": 0, "music_list": "NONE", "sound_file": "NONE", "music_detail": "준비 중"},
+
+    {"number": 5, "title": "준비 중", "music_start_time": 0, "music_sound": 0, "music_list": "NONE", "sound_file": "NONE", "music_detail": "준비 중"},
+
+    {"number": 6, "title": "준비 중", "music_start_time": 0, "music_sound": 0, "music_list": "NONE", "sound_file": "NONE", "music_detail": "준비 중"},
+
+    {"number": 7, "title": "준비 중", "music_start_time": 0, "music_sound": 0, "music_list": "NONE", "sound_file": "NONE", "music_detail": "준비 중"},
 ]
 
 original_note_data = []
@@ -274,19 +281,17 @@ def save_score(username, song_title, score, max_combo):
         users = json.load(f)
 
     if username not in users:
-        return  # or raise an error
+        return
 
     if "scores" not in users[username]:
         users[username]["scores"] = {}
 
-    # 기존의 점수와 콤보 정보 가져오기
     current_score_data = users[username]["scores"].get(song_title, {"score": 0, "max_combo": 0})
 
-    # 기존 점수나 콤보보다 더 높은 값이면 업데이트
     new_score = max(current_score_data["score"], score)
-    new_combo = max(current_score_data["combo"], max_combo)
+    new_combo = max(current_score_data["max_combo"], max_combo)
 
-    users[username]["scores"][song_title] = {"score": new_score, "cmax_ombo": new_combo}
+    users[username]["scores"][song_title] = {"score": new_score, "max_combo": new_combo}
 
     with open(data_file, 'w') as f:
         json.dump(users, f)
@@ -539,7 +544,7 @@ def main_menu_esc_menu():
 def display_logged_in_user(screen):
     if logged_in_user:
         font = pygame.font.Font(font_path, 30)
-        text_surface = font.render("접속 아이디: [ " + logged_in_user + " ]", True, black)
+        text_surface = font.render("접속 아이디: [ " + logged_in_user + " ]", True, white)
         screen.blit(text_surface, (10, 15))
 
 
@@ -553,7 +558,7 @@ def blit_text_centered(surface, text_surface, rect):
 def solo_play_menu():
     pygame.draw.rect(screen, solo_play_menu_color, solo_play_menu_rect)
     font = pygame.font.Font(font_path2, 50)  
-    text_surface = font.render("START", True, white)  
+    text_surface = font.render("START", True, black)  
     text_rect = text_surface.get_rect()
     text_rect.midleft = (solo_play_menu_rect.left + 15, solo_play_menu_rect.centery)  
     
@@ -561,12 +566,12 @@ def solo_play_menu():
     circle_center = (text_rect.centerx + circle_offset, text_rect.centery)
 
     radius1 = 210
-    pygame.draw.circle(screen, black, circle_center, radius1) 
-    pygame.draw.circle(screen, white, circle_center, radius1, 6) 
+    pygame.draw.circle(screen, white, circle_center, radius1) 
+    pygame.draw.circle(screen, black, circle_center, radius1, 6) 
 
     radius2 = 190
-    pygame.draw.circle(screen, black, circle_center, radius2) 
-    pygame.draw.circle(screen, white, circle_center, radius2, 6) 
+    pygame.draw.circle(screen, white, circle_center, radius2) 
+    pygame.draw.circle(screen, black, circle_center, radius2, 6) 
 
     info_font = pygame.font.Font(font_path, 35)
     rect_width = 230
@@ -588,29 +593,29 @@ def solo_play_menu():
     right_box_rect = pygame.Rect(rect_right.left - padding, rect_right.top - padding, 
                                 rect_right.width + 2*padding, rect_right.height + 2*padding)
     
-    pygame.draw.rect(screen, black, right_box_rect)
-    pygame.draw.rect(screen, white, right_box_rect, 8) 
+    pygame.draw.rect(screen, white, right_box_rect)
+    pygame.draw.rect(screen, black, right_box_rect, 8) 
 
-    pygame.draw.rect(screen, black, rect_top)
-    pygame.draw.rect(screen, white, rect_top, rect_thickness)
+    pygame.draw.rect(screen, white, rect_top)
+    pygame.draw.rect(screen, black, rect_top, rect_thickness)
 
-    pygame.draw.rect(screen, black, rect_middle1)
-    pygame.draw.rect(screen, white, rect_middle1, rect_thickness)
+    pygame.draw.rect(screen, white, rect_middle1)
+    pygame.draw.rect(screen, black, rect_middle1, rect_thickness)
 
-    pygame.draw.rect(screen, black, rect_right)
-    pygame.draw.rect(screen, white, rect_right, rect_thickness)
+    pygame.draw.rect(screen, white, rect_right)
+    pygame.draw.rect(screen, black, rect_right, rect_thickness)
 
-    pygame.draw.rect(screen, black, rect_middle2)
-    pygame.draw.rect(screen, white, rect_middle2, rect_thickness)
+    pygame.draw.rect(screen, white, rect_middle2)
+    pygame.draw.rect(screen, black, rect_middle2, rect_thickness)
 
-    pygame.draw.rect(screen, black, rect_bottom)
-    pygame.draw.rect(screen, white, rect_bottom, rect_thickness)
+    pygame.draw.rect(screen, white, rect_bottom)
+    pygame.draw.rect(screen, black, rect_bottom, rect_thickness)
 
-    top_info_surface = info_font.render(music_data[(current_index ) % len(music_data)]["title"], True, white)
-    middle1_info_surface = info_font.render(music_data[(current_index + 1) % len(music_data)]["title"], True, white)
-    right_info_surface = info_font.render(music_data[(current_index + 2) % len(music_data)]["title"], True, white)
-    middle2_info_surface = info_font.render(music_data[(current_index + 3) % len(music_data)]["title"], True, white)
-    bottom_info_surface = info_font.render(music_data[(current_index + 4) % len(music_data)]["title"], True, white)
+    top_info_surface = info_font.render(music_data[(current_index ) % len(music_data)]["title"], True, black)
+    middle1_info_surface = info_font.render(music_data[(current_index + 1) % len(music_data)]["title"], True, black)
+    right_info_surface = info_font.render(music_data[(current_index + 2) % len(music_data)]["title"], True, black)
+    middle2_info_surface = info_font.render(music_data[(current_index + 3) % len(music_data)]["title"], True, black)
+    bottom_info_surface = info_font.render(music_data[(current_index + 4) % len(music_data)]["title"], True, black)
 
     blit_text_centered(screen, top_info_surface, rect_top)
     blit_text_centered(screen, middle1_info_surface, rect_middle1)
@@ -629,8 +634,8 @@ def solo_play_menu():
 
     # 데이터 로드
     user_score_data = load_score(logged_in_user, song_title)  
-    max_combo = user_score_data.get("combo", 0)  # 'max_combo'가 없으면 0을 반환
-    score = user_score_data.get("score", 0)          # 'score'가 없으면 0을 반환
+    max_combo = user_score_data.get("combo", 0)  
+    score = user_score_data.get("score", 0)       
 
     combo_text = "Max Combo: {}".format(max_combo)
     combo_surface = result_font.render(combo_text, True, black)
@@ -659,7 +664,7 @@ def solo_run_game():
     button_font = pygame.font.Font(font_path, button_font_size)
 
     hp_label_font = pygame.font.Font(None, 40)
-    hp_label_text = hp_label_font.render("MY.HP", True, white)
+    hp_label_text = hp_label_font.render("MY.HP", True, black)
     hp_label_rect = hp_label_text.get_rect(right=screen_width-270, top=180)
 
     combo_font = pygame.font.Font(font_path, 40)
@@ -705,10 +710,10 @@ def solo_run_game():
     score_box_y = 80
 
     button_data = [
-        {"x": button_x_centers[0] - 45, "y": button_y_center - 65, "width": 90, "height": 130, "color": white, "pressed": False, "key": pygame.K_s},
-        {"x": button_x_centers[1] - 45, "y": button_y_center - 65, "width": 90, "height": 130, "color": white, "pressed": False, "key": pygame.K_d},
-        {"x": button_x_centers[2] - 45, "y": button_y_center - 65, "width": 90, "height": 130, "color": white, "pressed": False, "key": semicolon_key},
-        {"x": button_x_centers[3] - 45, "y": button_y_center - 65, "width": 90, "height": 130, "color": white, "pressed": False, "key": pygame.K_QUOTE}
+        {"x": button_x_centers[0] - 45, "y": button_y_center - 65, "width": 90, "height": 130, "color": black, "pressed": False, "key": pygame.K_s},
+        {"x": button_x_centers[1] - 45, "y": button_y_center - 65, "width": 90, "height": 130, "color": black, "pressed": False, "key": pygame.K_d},
+        {"x": button_x_centers[2] - 45, "y": button_y_center - 65, "width": 90, "height": 130, "color": black, "pressed": False, "key": semicolon_key},
+        {"x": button_x_centers[3] - 45, "y": button_y_center - 65, "width": 90, "height": 130, "color": black, "pressed": False, "key": pygame.K_QUOTE}
     ]
 
     initial_position_outside_screen = -5 
@@ -735,19 +740,19 @@ def solo_run_game():
         for button in button_data:
             rectangle_x = button["x"] + button["width"] // 2 - rectangle_width // 2
             rectangle_y = button["y"] - rectangle_height - 75
-            pygame.draw.rect(screen, black, (rectangle_x, rectangle_y, rectangle_width, rectangle_height)) 
-            pygame.draw.rect(screen, white, (rectangle_x, rectangle_y, rectangle_width, rectangle_height), 4) 
+            pygame.draw.rect(screen, white, (rectangle_x, rectangle_y, rectangle_width, rectangle_height)) 
+            pygame.draw.rect(screen, black, (rectangle_x, rectangle_y, rectangle_width, rectangle_height), 4) 
 
 
     def draw_hp_bar():
         pygame.draw.rect(screen, red, (hp_bar_x, hp_bar_y, hp_bar_width, hp_bar_height))
 
         for i in range(player_hp, 10):
-            pygame.draw.rect(screen, black, (hp_bar_x + i * hp_segment_width, hp_bar_y, hp_segment_width, hp_bar_height))
+            pygame.draw.rect(screen, white, (hp_bar_x + i * hp_segment_width, hp_bar_y, hp_segment_width, hp_bar_height))
         
-        pygame.draw.rect(screen, white, (hp_bar_x, hp_bar_y, hp_bar_width, hp_bar_height), 8) 
+        pygame.draw.rect(screen, black, (hp_bar_x, hp_bar_y, hp_bar_width, hp_bar_height), 8) 
         for i in range(1, 10):
-            pygame.draw.line(screen, white, (hp_bar_x + i * hp_segment_width, hp_bar_y), 
+            pygame.draw.line(screen, black, (hp_bar_x + i * hp_segment_width, hp_bar_y), 
                             (hp_bar_x + i * hp_segment_width, hp_bar_y + hp_bar_height-5), 4)
 
     def draw_notes():
@@ -788,15 +793,15 @@ def solo_run_game():
 
     def draw_retry_button():
         font_retry = pygame.font.Font(font_path, 50)
-        pygame.draw.rect(screen, black, retry_button_rect)
-        text = font_retry.render("다시 하기", True, white)
+        pygame.draw.rect(screen, white, retry_button_rect)
+        text = font_retry.render("다시 하기", True, black)
         text_rect = text.get_rect(center=retry_button_rect.center)
         screen.blit(text, text_rect)
 
     def draw_menu_button():
         font_menu = pygame.font.Font(font_path, 50)
-        pygame.draw.rect(screen, black, menu_button_rect)
-        text = font_menu.render('메뉴 가기', True, white)
+        pygame.draw.rect(screen, white, menu_button_rect)
+        text = font_menu.render('메뉴 가기', True, black)
         text_rect = text.get_rect(center=menu_button_rect.center)
         screen.blit(text, text_rect)
 
@@ -808,19 +813,20 @@ def solo_run_game():
         pygame.mixer.music.stop()
 
     def play_song_thread():
-        time.sleep(2)
+        time.sleep(song_start_time)
+        pygame.mixer.music.set_volume(sound_volume)
         pygame.mixer.music.load(song_file_path)
         pygame.mixer.music.play()
 
     def draw_win_screen():
-        screen.fill(black)
+        screen.fill(white)
         
         score_font = pygame.font.Font(font_path, 70)
-        score_text = score_font.render(f"Score: {score}", True, white)
+        score_text = score_font.render(f"Score: {score}", True, black)
         score_rect = score_text.get_rect(center=(screen_width // 2, 300))
 
         combo_font = pygame.font.Font(font_path, 70)
-        combo_text = combo_font.render(f"Max Combo: {max_combo}", True, white)
+        combo_text = combo_font.render(f"Max Combo: {max_combo}", True, black)
         combo_rect = combo_text.get_rect(center=(screen_width // 2, score_rect.bottom + 50))
 
         draw_retry_button()
@@ -828,12 +834,12 @@ def solo_run_game():
 
         line_start = (score_rect.left-90, score_rect.bottom + 90)
         line_end = (score_rect.right+90, score_rect.bottom + 90)
-        pygame.draw.line(screen, white, line_start, line_end, 8)
+        pygame.draw.line(screen, black, line_start, line_end, 8)
 
         vertical_line_start_x = (retry_button_rect.right + menu_button_rect.left) // 2
         vertical_line_start = (vertical_line_start_x, score_rect.bottom + 90)   
         vertical_line_end = (vertical_line_start_x, retry_button_rect.top + 50)
-        pygame.draw.line(screen, white, vertical_line_start, vertical_line_end, 8)
+        pygame.draw.line(screen, black, vertical_line_start, vertical_line_end, 8)
 
         screen.blit(score_text, score_rect)
         screen.blit(combo_text, combo_rect)
@@ -841,17 +847,17 @@ def solo_run_game():
         stop_song()
     
     def draw_game_over_screen():
-        screen.fill(black)
+        screen.fill(white)
         game_over_font = pygame.font.Font(font_path, 100)
-        game_over_text = game_over_font.render("Game Over", True, white)
+        game_over_text = game_over_font.render("Game Over", True, black)
         text_rect = game_over_text.get_rect(center=(screen_width // 2, screen_height - 600))
 
         score_font = pygame.font.Font(font_path, 70)
-        score_text = score_font.render(f"Score: {score}", True, white)
+        score_text = score_font.render(f"Score: {score}", True, black)
         score_rect = score_text.get_rect(center=(screen_width // 2, 300))
 
         combo_font = pygame.font.Font(font_path, 70)
-        combo_text = combo_font.render(f"Max Combo: {max_combo}", True, white)
+        combo_text = combo_font.render(f"Max Combo: {max_combo}", True, black)
         combo_rect = combo_text.get_rect(center=(screen_width // 2, score_rect.bottom + 45))
 
         draw_retry_button() 
@@ -859,11 +865,11 @@ def solo_run_game():
 
         line_start = (combo_rect.left, combo_rect.bottom + 20)
         line_end = (combo_rect.right, combo_rect.bottom + 20)
-        pygame.draw.line(screen, white, line_start, line_end, 8)
+        pygame.draw.line(screen, black, line_start, line_end, 8)
 
         vertical_line_start = ((line_start[0] + line_end[0]) // 2, combo_rect.bottom + 20)
         vertical_line_end = ((line_start[0] + line_end[0]) // 2, retry_button_rect.top + 60)
-        pygame.draw.line(screen, white, vertical_line_start, vertical_line_end, 8)
+        pygame.draw.line(screen, black, vertical_line_start, vertical_line_end, 8)
 
         screen.blit(game_over_text, text_rect)
         screen.blit(score_text, score_rect)
@@ -872,47 +878,47 @@ def solo_run_game():
         stop_song()
 
     def play_game_combo_and_score():
-        pygame.draw.rect(screen, black, (score_box_x, score_box_y, score_box_width, score_box_height))
-        pygame.draw.rect(screen, white, (score_box_x, score_box_y, score_box_width, score_box_height), 8)
+        pygame.draw.rect(screen, white, (score_box_x, score_box_y, score_box_width, score_box_height))
+        pygame.draw.rect(screen, black, (score_box_x, score_box_y, score_box_width, score_box_height), 8)
 
         score_label_font = pygame.font.Font(font_path, 30)
-        score_label_text = score_label_font.render("Score", True, white)
+        score_label_text = score_label_font.render("Score", True, black)
         score_label_rect = score_label_text.get_rect(midbottom=(score_box_x+45, score_box_y))
         screen.blit(score_label_text, score_label_rect)
         score_font = pygame.font.Font(font_path, 50)
-        score_text = score_font.render(f"{score}", True, white)
+        score_text = score_font.render(f"{score}", True, black)
         score_rect = score_text.get_rect(midright=(score_box_x + score_box_width - 20, score_box_y + (score_box_height // 2)))
         screen.blit(score_text, score_rect)
 
-        combo_text = combo_font.render("COMBO", True, white)   
+        combo_text = combo_font.render("COMBO", True, black)   
         combo_rect = combo_text.get_rect(right=screen_width-140, top=450)
-        pygame.draw.circle(screen, white, combo_rect.center, combo_rect.width-60, 8)
+        pygame.draw.circle(screen, black, combo_rect.center, combo_rect.width-60, 8)
         combo_text_rect = combo_text.get_rect(center=(combo_rect.centerx, combo_rect.centery - 130))
         screen.blit(combo_text, combo_text_rect)
-        combo_number_text = combo_number_font.render(str(combo), True, white)
+        combo_number_text = combo_number_font.render(str(combo), True, black)
         combo_number_rect = combo_number_text.get_rect(center=combo_rect.center)
         screen.blit(combo_number_text, combo_number_rect)
 
     def draw_pause_screen():
-        screen.fill(black)
+        screen.fill(white)
         pause_font = pygame.font.Font(font_path, 70)
-        pause_text = pause_font.render("ESC키를 눌러 게임을 이어하기", True, white)
+        pause_text = pause_font.render("ESC키를 눌러 게임을 이어하기", True, black)
         text_rect = pause_text.get_rect(center=(screen_width // 2, screen_height // 2 - 100))
         screen.blit(pause_text, text_rect)
         
         button_font = pygame.font.Font(font_path, 50)
-        retry_button_text = button_font.render("다시하기", True, white)
-        exit_button_text = button_font.render("나가기", True, white)
+        retry_button_text = button_font.render("다시하기", True, black)
+        exit_button_text = button_font.render("나가기", True, black)
         
         button_spacing = 400
         retry_button_rect = retry_button_text.get_rect(center=(screen_width // 2 - button_spacing // 2, screen_height // 2 + 100))
         exit_button_rect = exit_button_text.get_rect(center=(screen_width // 2 + button_spacing // 2, screen_height // 2 + 100))
 
         
-        pygame.draw.rect(screen, black, retry_button_rect.inflate(130, 70))
-        pygame.draw.rect(screen, white, retry_button_rect.inflate(130, 70), 8)
-        pygame.draw.rect(screen, black, exit_button_rect.inflate(160, 70))
-        pygame.draw.rect(screen, white, exit_button_rect.inflate(160, 70), 8)
+        pygame.draw.rect(screen, white, retry_button_rect.inflate(130, 70))
+        pygame.draw.rect(screen, black, retry_button_rect.inflate(130, 70), 8)
+        pygame.draw.rect(screen, white, exit_button_rect.inflate(160, 70))
+        pygame.draw.rect(screen, black, exit_button_rect.inflate(160, 70), 8)
     
         screen.blit(retry_button_text, retry_button_rect)
         screen.blit(exit_button_text, exit_button_rect)
@@ -935,7 +941,7 @@ def solo_run_game():
 
     while running:
         global hit_result, hit_result_start_time
-        screen.fill(black) 
+        screen.fill(white) 
         draw_hp_bar()
         
         for event in pygame.event.get():
@@ -1017,7 +1023,7 @@ def solo_run_game():
                         game_state = "playing"
 
                         for button in button_data:
-                            button["color"] = white
+                            button["color"] = black
                             button["pressed"] = False
                         note_data = copy.deepcopy(original_note_data)
                         
@@ -1033,10 +1039,10 @@ def solo_run_game():
                         current_game_state = GameState.SOLO_PLAY
         
         if game_state == "playing":
-            pygame.draw.line(screen, white, (rect_x, max(check_line, rect_y)), (rect_x + rect_width-5, max(check_line, rect_y)), 8)
-            pygame.draw.line(screen, black, (rect_x, max(hit_top_line, rect_y)), (rect_x + rect_width-5, max(hit_top_line, rect_y)), 2)
-            pygame.draw.line(screen, black, (rect_x, max(hit_middle_line, rect_y)), (rect_x + rect_width-5, max(hit_middle_line, rect_y)), 2)
-            pygame.draw.line(screen, black, (rect_x, max(hit_bottom_line, rect_y)), (rect_x + rect_width-5, max(hit_bottom_line, rect_y)), 2)
+            pygame.draw.line(screen, black, (rect_x, max(check_line, rect_y)), (rect_x + rect_width-5, max(check_line, rect_y)), 8)
+            pygame.draw.line(screen, white, (rect_x, max(hit_top_line, rect_y)), (rect_x + rect_width-5, max(hit_top_line, rect_y)), 2)
+            pygame.draw.line(screen, white, (rect_x, max(hit_middle_line, rect_y)), (rect_x + rect_width-5, max(hit_middle_line, rect_y)), 2)
+            pygame.draw.line(screen, white, (rect_x, max(hit_bottom_line, rect_y)), (rect_x + rect_width-5, max(hit_bottom_line, rect_y)), 2)
 
             if not note_data and player_hp > 0: 
                 game_state = "win"
@@ -1063,7 +1069,7 @@ def solo_run_game():
                     gradient_rect = pygame.Rect(button["x"]-7, check_line-630, button["width"]+15, 120)
                     draw_vertical_gradient(white, black, gradient_rect, check_line)
 
-                if button["color"] == white:
+                if button["color"] == black:
                     for note in note_data[:]:
                         if note["number"] >= 0:
                             lane = note["lane"]
@@ -1113,6 +1119,8 @@ def solo_run_game():
                                             draw_hit_result_label("Miss")
                                             combo = 0
                                             player_hp -= 1
+                                            if max_combo < combo:
+                                                max_combo = combo
                                             note_data.remove(note)
 
                             elif (y_position_bottom >= hit_bottom_line and y_position_top <= hit_bottom_line) or (y_position_top >= hit_top_line and y_position_bottom <= hit_top_line):
@@ -1121,29 +1129,33 @@ def solo_run_game():
                                             draw_hit_result_label("Miss")
                                             combo = 0
                                             player_hp -= 1
+                                            if max_combo < combo:
+                                                max_combo = combo
                                             note_data.remove(note)
 
-                            elif y_position > rect_y + rect_height:
+                            elif y_position_bottom > rect_y + rect_height:
                                 if lane == button_data.index(button):
                                     combo = 0
+                                    if max_combo < combo:
+                                        max_combo = combo
     
-            pygame.draw.rect(screen, white, (rect_x, rect_y, rect_width, rect_height), border_thickness)
+            pygame.draw.rect(screen, black, (rect_x, rect_y, rect_width, rect_height), border_thickness)
             segment_width = rect_width // 4
             for i in range(1, 4):
                 x = rect_x + i * segment_width
-                pygame.draw.line(screen, white, (x, rect_y), (x, rect_y + rect_height-5), 8)
+                pygame.draw.line(screen, black, (x, rect_y), (x, rect_y + rect_height-5), 8)
 
             hit_box()
             draw_notes()
             
 
             for button in button_data:
-                pygame.draw.rect(screen, white, (button["x"], button["y"], button["width"], button["height"]), 1)
+                pygame.draw.rect(screen, black, (button["x"], button["y"], button["width"], button["height"]), 1)
                 pygame.draw.rect(screen, button["color"], (button["x"], button["y"], button["width"], button["height"]), 0)
                 if button["pressed"]:
-                    pygame.draw.rect(screen, white, (button["x"], button["y"], button["width"], button["height"]), 3)
+                    pygame.draw.rect(screen, black, (button["x"], button["y"], button["width"], button["height"]), 3)
 
-                text = button_font.render(pygame.key.name(button["key"]), True, black)
+                text = button_font.render(pygame.key.name(button["key"]), True, white)
                 text_rect = text.get_rect(center=(button["x"] + button["width"] // 2, button["y"] + button["height"] // 2))
                 screen.blit(text, text_rect)
 
@@ -1153,14 +1165,14 @@ def solo_run_game():
                 current_time = pygame.time.get_ticks()
                 if current_time - hit_result_start_time <= 1000:
                     hit_result_font = pygame.font.Font(font_path, 50)
-                    hit_result_text = hit_result_font.render(hit_result, True, white)
+                    hit_result_text = hit_result_font.render(hit_result, True, black)
                     hit_result_rect = hit_result_text.get_rect(bottomright=(screen_width-150, screen_height-100))
                     screen.blit(hit_result_text, hit_result_rect)
                 else:
                     hit_result = None
 
             pygame.display.flip()
-            clock.tick(60)
+            clock.tick(144)
 
         elif game_state == "game_over":
             draw_game_over_screen()
@@ -1334,10 +1346,13 @@ while True:
                     current_game_state = GameState.SOLO_PLAY
 
         if event.type == pygame.MOUSEBUTTONDOWN and current_game_state == GameState.SOLO_PLAY:
-
             if start_button_rect.collidepoint(event.pos):
-                music_list_value = music_data[(current_index + 2) % len(music_data)]["music_list"]
-                song_file_path = music_data[(current_index + 2) % len(music_data)]["sound_file"]
+                current_music = music_data[(current_index + 2) % len(music_data)]
+                music_list_value = current_music["music_list"]
+                song_file_path = current_music["sound_file"]
+                sound_volume = current_music["music_sound"]
+                song_start_time = current_music["music_start_time"]
+
                 file_name = "note_data/" + music_list_value + ".json"
                 try:
                     with open(file_name, "r") as file:
@@ -1347,6 +1362,9 @@ while True:
                         solo_run_game()
                 except FileNotFoundError:
                     pass
+
+
+
 
         if event.type == pygame.KEYDOWN:
             if current_game_state == GameState.CREATE:
@@ -1365,13 +1383,18 @@ while True:
                         current_index = 7
 
                 elif event.key == pygame.K_RETURN:
-                    music_list_value = music_data[(current_index + 2) % len(music_data)]["music_list"]
-                    song_file_path = music_data[(current_index + 2) % len(music_data)]["sound_file"]
+                    current_music = music_data[(current_index + 2) % len(music_data)]
+                    music_list_value = current_music["music_list"]
+                    song_file_path = current_music["sound_file"]
+                    sound_volume = current_music["music_sound"]
+                    song_start_time = current_music["music_start_time"]
+
                     file_name = "note_data/" + music_list_value + ".json"
                     try:
                         with open(file_name, "r") as file:
                             loaded_data = json.load(file)
                         original_note_data = loaded_data.copy()
+
                         if len(original_note_data) != 0:
                             solo_run_game()
                     except FileNotFoundError:
